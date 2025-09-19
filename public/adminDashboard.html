@@ -1,73 +1,169 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="adminDashboard.css">
-  <script type="module" src="adminDashboard.js"></script>
-  <title>Aurora Admin Dashboard</title>
-</head>
-<body>
-  <header class="header">
-    <div class="header-content">
-      <div class="logo">
-        <h1>Aurora Admin Panel</h1>
-      </div>
-      <div class="user-info">
-        <span id="userEmail">Cargando...</span>
-        <button class="logout-btn" onclick="logout()">Cerrar Sesión</button>
-      </div>
-    </div>
-  </header>
-
-  <div class="container">
-    <div id="loading" class="loading">
-      <div class="spinner"></div>
-      <p>Cargando información del administrador...</p>
-    </div>
-
-    <div id="dashboard" style="display: none;">
-      <div class="welcome-card">
-        <h2>¡Bienvenido, Administrador!</h2>
-        <p>Estás logueado como: <strong id="adminEmail"></strong></p>
-        <p>UID: <span id="adminUid"></span></p>
-        <p>Cuenta creada: <span id="adminCreated"></span></p>
-      </div>
-
-      <div class="admin-actions">
-        <div class="action-card">
-          <h3>Gestión de Administradores</h3>
-          <p>Crear nuevos administradores del sistema.</p>
-          <button class="action-btn" onclick="window.location.href='registroAdmin.html'">
-            Registrar Nuevo Admin
-          </button>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="adminDashboard.css" />
+    <script type="module" src="adminDashboard.js"></script>
+    <title>Aurora Admin Dashboard</title>
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Sidebar">
+        <div class="sidebar-brand">
+          <h2>Aurora</h2>
         </div>
-
-        <div class="action-card">
-          <h3>Validación de Psicólogos</h3>
-          <p>Validar cédulas profesionales y gestionar psicólogos del sistema.</p>
-          <button class="action-btn" onclick="window.location.href='psychologistManagement.html'">
-            Gestionar Psicólogos
-          </button>
-        </div>
-
-        <div class="action-card">
-          <h3>Configuración</h3>
-          <p>Configurar parámetros del sistema.</p>
-          <button class="action-btn" onclick="alert('Función en desarrollo')">
+        <nav class="sidebar-nav">
+          <a class="nav-item active" href="adminDashboard.html">
+            <span class="icon">🏠</span>
+            Dashboard
+          </a>
+          <a class="nav-item" href="psychologistManagement.html">
+            <span class="icon">👥</span>
+            Psicólogos
+          </a>
+          <a class="nav-item" href="#">
+            <span class="icon">📊</span>
+            Estadísticas
+          </a>
+          <a class="nav-item" href="#">
+            <span class="icon">⚙️</span>
             Configuración
-          </button>
-        </div>
+          </a>
+        </nav>
+      </aside>
 
-        <div class="action-card">
-          <h3>Reportes</h3>
-          <p>Ver estadísticas y reportes del sistema.</p>
-          <button class="action-btn" onclick="alert('Función en desarrollo')">
-            Ver Reportes
-          </button>
-        </div>
+      <div class="main">
+        <header class="main-header">
+          <div class="header-content">
+            <h1>Aurora</h1>
+            <p class="subtitle">Panel de Administración</p>
+          </div>
+          <div class="header-right">
+            <div class="user-info">
+              <span class="user-email" id="userEmail"
+                >margaritamoraga.m22@gmail.com</span
+              >
+              <span class="user-role">Administrador</span>
+            </div>
+            <button class="btn logout" onclick="logout()">Cerrar Sesión</button>
+          </div>
+        </header>
+
+        <main class="content">
+          <section class="welcome-section">
+            <h2 class="welcome-title">¡Bienvenido de vuelta!</h2>
+            <p class="welcome-subtitle">
+              Gestiona tu plataforma Aurora desde este panel de control
+            </p>
+
+            <div class="user-details">
+              <div class="detail-item">
+                <span class="detail-label">Email:</span>
+                <span class="detail-value" id="adminEmail"
+                  >margaritamoraga.m22@gmail.com</span
+                >
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">ID:</span>
+                <span class="detail-value" id="adminUid"
+                  >RkUXfATq5H8cRY7pGarPgvLFHV173</span
+                >
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Cuenta creada:</span>
+                <span class="detail-value" id="adminCreated">15/9/2025</span>
+              </div>
+            </div>
+          </section>
+
+          <section class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon">👥</div>
+              <div class="stat-info">
+                <div class="stat-number">24</div>
+                <div class="stat-label">Psicólogos Activos</div>
+                <div class="stat-trend positive">+12% este mes</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">✓</div>
+              <div class="stat-info">
+                <div class="stat-number">8</div>
+                <div class="stat-label">Validaciones Pendientes</div>
+                <div class="stat-badge">8 pendientes</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">👤</div>
+              <div class="stat-info">
+                <div class="stat-number">3</div>
+                <div class="stat-label">Administradores</div>
+                <div class="stat-trend">+1 este mes</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">📊</div>
+              <div class="stat-info">
+                <div class="stat-number">156</div>
+                <div class="stat-label">Sesiones Totales</div>
+                <div class="stat-trend">Sin cambios</div>
+              </div>
+            </div>
+          </section>
+
+          <section class="actions-section">
+            <h2 class="section-title">Acciones Principales</h2>
+            <div class="actions-grid">
+              <div class="action-card">
+                <div class="action-icon">👥</div>
+                <h3>Gestión de Psicólogos</h3>
+                <p>
+                  Valida credenciales profesionales, gestiona perfiles y
+                  supervisa el estado de los psicólogos registrados en la
+                  plataforma.
+                </p>
+                <button
+                  class="action-btn primary"
+                  onclick="window.location.href='psychologistManagement.html'"
+                >
+                  Gestionar Psicólogos
+                </button>
+                <span class="badge">8 pendientes</span>
+              </div>
+              <div class="action-card">
+                <div class="action-icon">👤</div>
+                <h3>Administradores</h3>
+                <p>
+                  Crea y gestiona cuentas de administrador para el sistema.
+                  Controla los accesos y permisos del panel de administración.
+                </p>
+                <button
+                  class="action-btn secondary"
+                  onclick="window.location.href='registroAdmin.html'"
+                >
+                  Registrar Admin
+                </button>
+              </div>
+              <div class="action-card">
+                <div class="action-icon">📊</div>
+                <h3>Reportes y Estadísticas</h3>
+                <p>
+                  Visualiza métricas detalladas, genera reportes de actividad y
+                  analiza el rendimiento de la plataforma.
+                </p>
+                <button
+                  class="action-btn tertiary"
+                  onclick="alert('Próximamente')"
+                >
+                  Ver Reportes
+                </button>
+                <span class="badge coming-soon">Próximamente</span>
+              </div>
+            </div>
+          </section>
+        </main>
       </div>
     </div>
-  </div>
-</body>
+  </body>
 </html>
