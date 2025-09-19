@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="adminDashboard.css">
+  <script type="module" src="adminDashboard.js"></script>
+  <title>Aurora Admin Dashboard</title>
+</head>
+<body>
+  <header class="header">
+    <div class="header-content">
+      <div class="logo">
+        <h1>Aurora Admin Panel</h1>
+      </div>
+      <div class="user-info">
+        <span id="userEmail">Cargando...</span>
+        <button class="logout-btn" onclick="logout()">Cerrar Sesión</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <div id="loading" class="loading">
+      <div class="spinner"></div>
+      <p>Cargando información del administrador...</p>
+    </div>
+
+    <div id="dashboard" style="display: none;">
+      <div class="welcome-card">
+        <h2>¡Bienvenido, Administrador!</h2>
+        <p>Estás logueado como: <strong id="adminEmail"></strong></p>
+        <p>UID: <span id="adminUid"></span></p>
+        <p>Cuenta creada: <span id="adminCreated"></span></p>
+      </div>
+
+      <div class="admin-actions">
+        <div class="action-card">
+          <h3>Gestión de Administradores</h3>
+          <p>Crear nuevos administradores del sistema.</p>
+          <button class="action-btn" onclick="window.location.href='registroAdmin.html'">
+            Registrar Nuevo Admin
+          </button>
+        </div>
+
+        <div class="action-card">
+          <h3>Validación de Psicólogos</h3>
+          <p>Validar cédulas profesionales y gestionar psicólogos del sistema.</p>
+          <button class="action-btn" onclick="window.location.href='psychologistManagement.html'">
+            Gestionar Psicólogos
+          </button>
+        </div>
+
+        <div class="action-card">
+          <h3>Configuración</h3>
+          <p>Configurar parámetros del sistema.</p>
+          <button class="action-btn" onclick="alert('Función en desarrollo')">
+            Configuración
+          </button>
+        </div>
+
+        <div class="action-card">
+          <h3>Reportes</h3>
+          <p>Ver estadísticas y reportes del sistema.</p>
+          <button class="action-btn" onclick="alert('Función en desarrollo')">
+            Ver Reportes
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

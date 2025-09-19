@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="registroAdmin.css">
+   <script type="module" src="registroAdmin.js"></script>
+  <title>Aurora Admin Panel - Registro</title>
+</head>
+<body>
+  <div class="register-container">
+    <div class="logo">
+      <h1>Aurora</h1>
+      <p>Registro de Admin</p>
+    </div>
+
+    <form id="registerForm">
+      <div class="form-group">
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required placeholder="admin@aurora.com">
+      </div>
+
+      <div class="form-group">
+        <label for="password">Contraseña:</label>
+        <input type="password" id="password" name="password" required placeholder="Mínimo 6 caracteres">
+        <div class="password-requirements">
+          <strong>Requisitos de contraseña:</strong>
+          <ul>
+            <li>Mínimo 6 caracteres</li>
+            <li>Se recomienda usar números y símbolos</li>
+          </ul>
+        </div>
+      </div>
+
+      <button type="submit" class="register-btn" id="registerBtn">
+        Registrar Admin
+      </button>
+
+      <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p>Creando administrador...</p>
+      </div>
+
+      <div id="message" class="message" style="display: none;"></div>
+    </form>
+
+    <div class="back-link">
+      <p>¿Ya tienes cuenta? <a href="loginAdmin.html">Iniciar Sesión</a></p>
+      <p><a href="adminDashboard.html">← Volver al Dashboard</a></p>
+    </div>
+  </div>
+ 
+</body>
+</html>

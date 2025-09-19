@@ -1,0 +1,15 @@
+# Node.js
+node_modules/
+backend/package-lock.json
+
+# Development files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Firebase Emulators
+firebase.json
+.firebaserc
+serviceAccountKey.json

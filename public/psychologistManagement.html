@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="adminDashboard.css">
+  <link rel="stylesheet" href="psychologistManagment.css">
+  <title>Gestión de Psicólogos</title>
+</head>
+<body>
+  <header class="header">
+    <div class="header-content">
+      <div class="logo">
+        <h1>Gestión de Psicólogos</h1>
+      </div>
+      <div class="user-info">
+        <span id="userEmail">Cargando...</span>
+        <button class="logout-btn" onclick="logout()">Cerrar Sesión</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="stats-cards">
+      <div class="stat-card">
+        <div id="totalPsychologists" class="stat-number" >...</div>
+        <div class="stat-label">Total de Psicólogos</div>
+      </div>
+      <div class="stat-card" style="background: linear-gradient(135deg, #71c585 0%, #456c70 100%);">
+        <div id="activePsychologists" class="stat-number">...</div>
+        <div class="stat-label">Activos</div>
+      </div>
+      <div class="stat-card" style="background: linear-gradient(135deg, #deca8f 0%, #947a5f 100%);">
+        <div id="pendingPsychologists" class="stat-number">...</div>
+        <div class="stat-label">Pendientes</div>
+      </div>
+      <div class="stat-card" style="background: linear-gradient(135deg, #d16570 0%, #9d8582 100%);">
+        <div id="rejectedPsychologists" class="stat-number">...</div>
+        <div class="stat-label">Rechazados</div>
+      </div>
+    </div>
+
+    <div class="search-filters">
+      <input type="text" id="searchBar" class="search-input" placeholder="Buscar por nombre...">
+      <select id="statusFilter" class="filter-select">
+        <option value="">Todos los estados</option>
+        <option value="Activo">Activos</option>
+        <option value="Pendiente">Pendientes</option>
+        <option value="Rechazado">Rechazados</option>
+        <option value="Inactivo">Inactivos</option>
+      </select>
+    </div>
+
+    <div id="loading" class="loading">
+      <div class="spinner"></div>
+      <p>Cargando psicólogos...</p>
+    </div>
+
+    <div id="psychologistGrid" class="psychologist-grid" style="display: none;"></div>
+
+    <div id="noResults" style="display: none; text-align: center; padding: 50px;">
+      <h3>No se encontraron psicólogos</h3>
+      <p>Intenta cambiar los filtros de búsqueda.</p>
+    </div>
+  </div>
+
+  <div id="psychologistModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modalTitle">Detalles del Psicólogo</h2>
+        <span class="close">&times;</span>
+      </div>
+      <div id="modalBody">
+        <div class="detail-section">
+          <h3>Información Personal</h3>
+          <p><strong>Nombre Completo:</strong> <span id="modalFullName"></span></p>
+          <p><strong>Email:</strong> <span id="modalEmail"></span></p>
+          <p><strong>Estado:</strong> <span id="modalStatus"></span></p>
+          <p><strong>Notas de Admin:</strong> <span id="modalAdminNotes"></span></p>
+        </div>
+
+        <div class="detail-section">
+          <h3>Información Profesional</h3>
+          <p><strong>Título Profesional:</strong> <span id="modalProfessionalTitle"></span></p>
+          <p><strong>Licencia Profesional:</strong> <span id="modalProfessionalLicense"></span></p>
+          <p><strong>Años de Experiencia:</strong> <span id="modalYearsExperience"></span></p>
+          <p><strong>Especialidad:</strong> <span id="modalSpecialty"></span></p>
+          <p><strong>Descripción:</strong> <span id="modalDescription"></span></p>
+        </div>
+
+        <div class="detail-section">
+          <h3>Educación y Certificaciones</h3>
+          <p><strong>Educación:</strong></p>
+          <ul id="modalEducationList"></ul>
+          <p><strong>Certificaciones:</strong></p>
+          <ul id="modalCertificationsList"></ul>
+        </div>
+
+        <div class="detail-section">
+          <h3>Disponibilidad</h3>
+          <p><strong>Disponible:</strong> <span id="modalIsAvailable"></span></p>
+          <p><strong>Horario:</strong></p>
+          <ul id="modalScheduleList"></ul>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button id="validateBtn" class="btn btn-validate">Validar</button>
+        <button id="rejectBtn" class="btn btn-reject">Rechazar</button>
+        <button id="deleteBtn" class="btn btn-delete" style="display: none;">Borrar</button>
+        <button id="closeBtn" class="btn btn-secondary">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="rejectionModal" class="modal">
+      <div class="modal-content" style="max-width: 500px;">
+          <div class="modal-header">
+              <h2>Razón del Rechazo</h2>
+              <span class="close" id="closeRejectionModal">&times;</span>
+          </div>
+          <div class="modal-body">
+              <p>Por favor, ingresa el motivo para rechazar la validación de este psicólogo:</p>
+              <textarea id="rejectionReasonInput" rows="5" placeholder="Escribe aquí..."></textarea>
+          </div>
+          <div class="modal-actions">
+              <button id="confirmRejectBtn" class="btn btn-reject">Rechazar</button>
+              <button id="cancelRejectBtn" class="btn btn-secondary">Cancelar</button>
+          </div>
+      </div>
+  </div>
+  
+  <script type="module" src="psychologistManagement.js"></script>
+</body>
+</html>
