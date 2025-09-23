@@ -13,6 +13,7 @@ onAuthStateChanged(auth, async (user) => {
   }
 
   try {
+
     console.log("=== INICIO VERIFICACIÓN ADMIN ===");
     console.log("Usuario autenticado:", user.email);
     console.log("UID:", user.uid);
@@ -21,11 +22,11 @@ onAuthStateChanged(auth, async (user) => {
     const currentToken = await user.getIdTokenResult(true);
     console.log("Claims actuales:", currentToken.claims);
     console.log("¿Tiene claim de admin?", currentToken.claims.admin);
-
     // Verificar que tiene privilegios de admin
     const idToken = await user.getIdToken(true);
     console.log("Token obtenido, verificando con el backend...");
     console.log("BACKEND_URL:", BACKEND_URL);
+
 
     const response = await fetch(`${BACKEND_URL}/api/login/verify`, {
       method: "POST",
@@ -98,3 +99,4 @@ window.logout = async () => {
     console.error("Error en logout:", error);
   }
 };
+
