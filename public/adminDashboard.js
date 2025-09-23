@@ -13,16 +13,20 @@ onAuthStateChanged(auth, async (user) => {
   }
 
   try {
+
+    console.log("=== INICIO VERIFICACIÓN ADMIN ===");
     console.log("Usuario autenticado:", user.email);
     console.log("UID:", user.uid);
 
     // Verificar token actual
     const currentToken = await user.getIdTokenResult(true);
     console.log("Claims actuales:", currentToken.claims);
-
+    console.log("¿Tiene claim de admin?", currentToken.claims.admin);
     // Verificar que tiene privilegios de admin
     const idToken = await user.getIdToken(true);
     console.log("Token obtenido, verificando con el backend...");
+    console.log("BACKEND_URL:", BACKEND_URL);
+
 
     const response = await fetch(`${BACKEND_URL}/api/login/verify`, {
       method: "POST",
@@ -32,12 +36,29 @@ onAuthStateChanged(auth, async (user) => {
       },
     });
 
-    console.log("Respuesta del servidor:", response.status);
-    const responseData = await response.json();
-    console.log("Datos de la respuesta:", responseData);
+    console.log("Status de respuesta:", response.status);
+    console.log("Headers de respuesta:", response.headers);
+    
+    let responseData;
+    try {
+      responseData = await response.json();
+      console.log("Datos de la respuesta:", responseData);
+    } catch (jsonError) {
+      console.error("Error parseando JSON:", jsonError);
+      const textResponse = await response.text();
+      console.log("Respuesta como texto:", textResponse);
+      throw new Error("Respuesta inválida del servidor");
+    }
 
     if (!response.ok) {
-      throw new Error(responseData.error || "No es administrador");
+      console.error("Error del servidor:", responseData);
+      throw new Error(responseData.error || `Error ${response.status}: ${response.statusText}`);
+    }
+
+    // Verificar estructura de respuesta
+    if (!responseData.admin) {
+      console.error("Estructura de respuesta inválida:", responseData);
+      throw new Error("Estructura de respuesta inválida del servidor");
     }
 
     const adminData = responseData.admin;
@@ -53,9 +74,16 @@ onAuthStateChanged(auth, async (user) => {
     // Ocultar loading y mostrar dashboard
     document.getElementById("loading").style.display = "none";
     document.getElementById("dashboard").style.display = "block";
+    
+    console.log("=== VERIFICACIÓN EXITOSA ===");
+
   } catch (error) {
-    console.error("Error verificando admin:", error);
-    alert("Error: No tienes privilegios de administrador");
+    console.error("=== ERROR EN VERIFICACIÓN ===");
+    console.error("Error completo:", error);
+    console.error("Mensaje:", error.message);
+    console.error("Stack:", error.stack);
+    
+    alert(`Error de verificación: ${error.message}`);
     window.location.href = "loginAdmin.html";
   }
 });
@@ -71,3 +99,4 @@ window.logout = async () => {
     console.error("Error en logout:", error);
   }
 };
+

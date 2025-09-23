@@ -1,9 +1,10 @@
 import express from "express";
 import cors from "cors";
-import adminRegisterRoutes from "./routes/adminRegister.js";
-import adminLoginRoutes from "./routes/adminLogin.js";
-import psychologistRoutes from "./routes/psychologistRoutes.js";
-import adminSetupRoutes from "./routes/adminSetup.js";
+import adminRegisterRoutes from './routes/adminRegister.js';
+import adminLoginRoutes from './routes/adminLogin.js';
+import psychologistRoutes from './routes/psychologistRoutes.js';
+import adminArticleRoutes from './routes/adminArticleRoutes.js';
+
 
 const app = express();
 
@@ -63,6 +64,9 @@ app.use("/api/setup", adminSetupRoutes);
 
 // Rutas de psicólogos
 app.use("/api", psychologistRoutes);
+
+// Rutas de administración de artículos (las nuevas)
+app.use('/api/admin', adminArticleRoutes);
 
 app.use((req, res) => {
   console.log(`Ruta no encontrada: ${req.method} ${req.originalUrl}`);
