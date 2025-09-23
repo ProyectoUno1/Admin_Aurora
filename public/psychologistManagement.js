@@ -7,11 +7,11 @@ let currentPsychologistId = null;
 
 // Mapeo de estados del backend a texto y clase CSS para el frontend
 const statusMap = {
-  PENDING: { text: 'Pendiente', colorClass: 'status-pending' },
-  APPROVED: { text: 'Activo', colorClass: 'status-active' }, 
-  ACTIVE: { text: 'Activo', colorClass: 'status-active' }, 
-  REJECTED: { text: 'Rechazado', colorClass: 'status-rejected' },
-  INACTIVE: { text: 'Inactivo', colorClass: 'status-inactive' },
+  PENDING: { text: 'Pendiente', colorClass: 'status-pendiente' },
+  APPROVED: { text: 'Activo', colorClass: 'status-activo' }, 
+  ACTIVE: { text: 'Activo', colorClass: 'status-activo' }, 
+  REJECTED: { text: 'Rechazado', colorClass: 'status-rechazado' },
+  INACTIVE: { text: 'Inactivo', colorClass: 'status-inactivo' },
   DEFAULT: { text: 'Desconocido', colorClass: 'status-unknown' } 
 };
 
@@ -136,7 +136,6 @@ function renderPsychologists() {
   noResults.style.display = 'none';
 
   grid.innerHTML = filteredPsychologists.map(psychologistRaw => {
-    console.log('Estado recibido del backend:', psychologistRaw.status);
     const psychologist = mapPsychologistData(psychologistRaw);
     
     // Obtener la información del estado del mapa
@@ -365,7 +364,6 @@ async function deletePsychologist(psychologistId) {
     }
 }
 
-
 // Función para aplicar filtros
 function applyFilters() {
   const searchQuery = document.getElementById('searchBar').value.toLowerCase();
@@ -423,7 +421,6 @@ window.updatePsychologistStatus = updatePsychologistStatus;
 window.closeModal = closeModal;
 window.showRejectionModalForId = showRejectionModalForId;
 window.deletePsychologist = deletePsychologist;
-
 
 // Función global para logout
 window.logout = async () => {

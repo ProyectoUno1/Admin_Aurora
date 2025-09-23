@@ -1,0 +1,84 @@
+/* Paleta de colores */
+:root {
+  --color-dark-teal: #004d40;
+  --color-bright-teal: #00897b;
+  --color-white: #ffffff;
+  --color-light-gray: #f5f5f5;
+  --color-lime: #cddc39;
+}
+
+body {
+  background: linear-gradient(45deg, var(--color-dark-teal), var(--color-bright-teal));
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  font-family: sans-serif;
+  color: var(--color-dark-teal);
+}
+
+.login-box {
+  background-color: var(--color-white);
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  width: 350px;
+}
+
+.login-box h2 {
+  color: var(--color-dark-teal);
+  margin-bottom: 5px;
+}
+
+.login-box p {
+  color: #777;
+  margin-bottom: 30px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+  transition: border-color 0.3s;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: var(--color-bright-teal);
+}
+
+.login-button {
+  width: 100%;
+  padding: 15px;
+  background-color: var(--color-bright-teal);
+  color: var(--color-white);
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  text-transform: uppercase;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.login-button:hover {
+  background-color: #006b5f; /* Un teal un poco más oscuro */
+}
+
+.forgot-password-link {
+  display: block;
+  margin-top: 15px;
+  color: var(--color-lime);
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.social-login {
+  margin-top: 30px;
+  border-top: 1px solid #eee;
+  padding-top: 20px;
+}

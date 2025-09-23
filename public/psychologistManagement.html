@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,59 +8,113 @@
   <title>Gestión de Psicólogos</title>
 </head>
 <body>
-  <header class="header">
-    <div class="header-content">
-      <div class="logo">
-        <h1>Gestión de Psicólogos</h1>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Sidebar">
+      <div class="sidebar-brand">
+        <h2>Aurora</h2>
       </div>
-      <div class="user-info">
-        <span id="userEmail">Cargando...</span>
-        <button class="logout-btn" onclick="logout()">Cerrar Sesión</button>
-      </div>
-    </div>
-  </header>
+      <nav class="sidebar-nav">
+        <a class="nav-item active" href="adminDashboard.html">
+          <span class="icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+            </svg>
+          </span>
+          Dashboard
+        </a>
+        <a class="nav-item" href="psychologistManagement.html">
+          <span class="icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+            </svg>
+          </span>
+          Psicólogos
+        </a>
+        <a class="nav-item" href="articleManagement.html">
+          <span class="icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+            </svg>
+          </span>
+          Artículos
+        </a>
+        <a class="nav-item" href="#">
+          <span class="icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+            </svg>
+          </span>
+          Estadísticas
+        </a>
+        <a class="nav-item" href="#">
+          <span class="icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
+            </svg>
+          </span>
+          Configuración
+        </a>
+      </nav>
+    </aside>
 
-  <div class="container">
-    <div class="stats-cards">
-      <div class="stat-card">
-        <div id="totalPsychologists" class="stat-number" >...</div>
-        <div class="stat-label">Total de Psicólogos</div>
-      </div>
-      <div class="stat-card" style="background: linear-gradient(135deg, #71c585 0%, #456c70 100%);">
-        <div id="activePsychologists" class="stat-number">...</div>
-        <div class="stat-label">Activos</div>
-      </div>
-      <div class="stat-card" style="background: linear-gradient(135deg, #deca8f 0%, #947a5f 100%);">
-        <div id="pendingPsychologists" class="stat-number">...</div>
-        <div class="stat-label">Pendientes</div>
-      </div>
-      <div class="stat-card" style="background: linear-gradient(135deg, #d16570 0%, #9d8582 100%);">
-        <div id="rejectedPsychologists" class="stat-number">...</div>
-        <div class="stat-label">Rechazados</div>
-      </div>
-    </div>
+    <div class="main">
+      <header class="main-header">
+        <div class="header-content">
+          <h1>Gestión de Psicólogos</h1>
+          <p class="subtitle">Panel de Administración</p>
+        </div>
+        <div class="header-right">
+          <div class="user-info">
+            <span class="user-email" id="userEmail">Cargando...</span>
+            <span class="user-role">Administrador</span>
+          </div>
+          <button class="btn logout" onclick="logout()">Cerrar Sesión</button>
+        </div>
+      </header>
 
-    <div class="search-filters">
-      <input type="text" id="searchBar" class="search-input" placeholder="Buscar por nombre...">
-      <select id="statusFilter" class="filter-select">
-        <option value="">Todos los estados</option>
-        <option value="Activo">Activos</option>
-        <option value="Pendiente">Pendientes</option>
-        <option value="Rechazado">Rechazados</option>
-        <option value="Inactivo">Inactivos</option>
-      </select>
-    </div>
+      <main class="content">
+        <div class="stats-cards">
+          <div class="stat-card">
+            <div id="totalPsychologists" class="stat-number-metrics">...</div>
+            <div class="stat-label-metrics">Total de Psicólogos</div>
+          </div>
+          <div class="stat-card" style="background: linear-gradient(135deg, #71c585 0%, #456c70 100%);">
+            <div id="activePsychologists" class="stat-number-metrics">...</div>
+            <div class="stat-label-metrics">Activos</div>
+          </div>
+          <div class="stat-card" style="background: linear-gradient(135deg, #deca8f 0%, #947a5f 100%);">
+            <div id="pendingPsychologists" class="stat-number-metrics">...</div>
+            <div class="stat-label-metrics">Pendientes</div>
+          </div>
+          <div class="stat-card" style="color: white;background: linear-gradient(135deg, #d16570 0%, #9d8582 100%);">
+            <div id="rejectedPsychologists" class="stat-number-metrics">...</div>
+            <div class="stat-label-metrics">Rechazados</div>
+          </div>
+        </div>
 
-    <div id="loading" class="loading">
-      <div class="spinner"></div>
-      <p>Cargando psicólogos...</p>
-    </div>
+        <div class="search-filters">
+          <input type="text" id="searchBar" class="search-input" placeholder="Buscar por nombre...">
+          <select id="statusFilter" class="filter-select">
+            <option value="">Todos los estados</option>
+            <option value="Activo">Activos</option>
+            <option value="Pendiente">Pendientes</option>
+            <option value="Rechazado">Rechazados</option>
+            <option value="Inactivo">Inactivos</option>
+          </select>
+        </div>
 
-    <div id="psychologistGrid" class="psychologist-grid" style="display: none;"></div>
+        <div id="loading" class="loading">
+          <div class="spinner"></div>
+          <p>Cargando psicólogos...</p>
+        </div>
 
-    <div id="noResults" style="display: none; text-align: center; padding: 50px;">
-      <h3>No se encontraron psicólogos</h3>
-      <p>Intenta cambiar los filtros de búsqueda.</p>
+        <div id="psychologistGrid" class="psychologist-grid" style="display: none;"></div>
+
+        <div id="noResults" style="display: none; text-align: center; padding: 50px;">
+          <h3>No se encontraron psicólogos</h3>
+          <p>Intenta cambiar los filtros de búsqueda.</p>
+        </div>
+      </main>
     </div>
   </div>
 
