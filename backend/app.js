@@ -50,7 +50,7 @@ app.use('/api/login', adminLoginRoutes);
 // Rutas de psicólogos
 app.use('/api', psychologistRoutes);
 
-// Rutas de administración de artículos (las nuevas)
+// Rutas de administración de artículos 
 app.use('/api/admin', adminArticleRoutes);
 
 app.use((req, res) => {

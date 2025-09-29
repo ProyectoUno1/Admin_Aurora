@@ -117,7 +117,8 @@ function mapPsychologistData(psychologist) {
     adminNotes: psychologist.adminNotes || '',
     validatedAt: psychologist.validatedAt || '',
     lastUpdated: psychologist.lastUpdated || '',
-    adminUid: psychologist.adminUid || ''
+    adminUid: psychologist.adminUid || '',
+    price: psychologist.price || psychologist.sessionPrice || 0,
   };
 }
 
@@ -229,13 +230,17 @@ async function showPsychologistDetails(psychologistId) {
     document.getElementById('modalSpecialty').textContent = psychologist.specialty || 'No especificado';
     document.getElementById('modalDescription').textContent = psychologist.description || 'No especificado';
     document.getElementById('modalIsAvailable').textContent = psychologist.isAvailable ? 'Sí' : 'No';
-
+    document.getElementById('modalPrice').textContent = psychologist.price ? `$${psychologist.price}` : 'No especificado';
+    
     const educationList = document.getElementById('modalEducationList');
     educationList.innerHTML = psychologist.education?.length ? psychologist.education.map(edu => `<li>${edu.institution || edu}</li>`).join('') : '<li>No especificado</li>';
     const certificationsList = document.getElementById('modalCertificationsList');
     certificationsList.innerHTML = psychologist.certifications?.length ? psychologist.certifications.map(cert => `<li>${cert}</li>`).join('') : '<li>No especificado</li>';
     const scheduleList = document.getElementById('modalScheduleList');
     scheduleList.innerHTML = psychologist.schedule ? Object.entries(psychologist.schedule).filter(([, val]) => val.available).map(([day, val]) => `<li>${day}: ${val.startTime} - ${val.endTime}</li>`).join('') : '<li>Horario no especificado</li>';
+
+    // Configurar la edición del precio
+    setupPriceEditing(psychologist);
 
     // Configuración dinámica de botones en el modal
     const validateBtn = document.getElementById('validateBtn');
@@ -273,6 +278,78 @@ async function showPsychologistDetails(psychologistId) {
     console.error('Error al mostrar los detalles:', error);
     alert(error.message);
   }
+}
+
+// Función para configurar la edición del precio
+function setupPriceEditing(psychologist) {
+  const editPriceBtn = document.getElementById('editPriceBtn');
+  const priceEditSection = document.getElementById('priceEditSection');
+  const priceInput = document.getElementById('priceInput');
+  const savePriceBtn = document.getElementById('savePriceBtn');
+  const cancelPriceBtn = document.getElementById('cancelPriceBtn');
+  
+  // Limpiar event listeners anteriores
+  editPriceBtn.onclick = null;
+  savePriceBtn.onclick = null;
+  cancelPriceBtn.onclick = null;
+  
+  // Mostrar/ocultar sección de edición
+  editPriceBtn.onclick = () => {
+    priceInput.value = psychologist.price || '';
+    priceEditSection.style.display = 'block';
+    editPriceBtn.style.display = 'none';
+  };
+  
+  cancelPriceBtn.onclick = () => {
+    priceEditSection.style.display = 'none';
+    editPriceBtn.style.display = 'inline-block';
+    priceInput.value = psychologist.price || '';
+  };
+  
+  savePriceBtn.onclick = async () => {
+    const newPrice = parseFloat(priceInput.value);
+    
+    if (isNaN(newPrice) || newPrice < 0) {
+      alert('Por favor ingresa un precio válido (número mayor o igual a 0)');
+      return;
+    }
+    
+    try {
+      await updatePsychologistPrice(psychologist.id, newPrice);
+      priceEditSection.style.display = 'none';
+      editPriceBtn.style.display = 'inline-block';
+      
+      // Actualizar el precio mostrado
+      document.getElementById('modalPrice').textContent = `$${newPrice}`;
+      
+      // Actualizar el objeto psychologist localmente
+      psychologist.price = newPrice;
+      
+      alert('Precio actualizado correctamente');
+    } catch (error) {
+      alert('Error al actualizar el precio: ' + error.message);
+    }
+  };
+}
+
+// Función para actualizar el precio del psicólogo
+async function updatePsychologistPrice(psychologistId, price) {
+  const idToken = await auth.currentUser.getIdToken();
+  const response = await fetch(`${BACKEND_URL}/api/psychologists/${psychologistId}/price`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${idToken}`
+    },
+    body: JSON.stringify({ price })
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || 'Error al actualizar el precio');
+  }
+  
+  return await response.json();
 }
 
 // Función para cerrar el modal de detalles principal
@@ -421,6 +498,7 @@ window.updatePsychologistStatus = updatePsychologistStatus;
 window.closeModal = closeModal;
 window.showRejectionModalForId = showRejectionModalForId;
 window.deletePsychologist = deletePsychologist;
+window.updatePsychologistPrice = updatePsychologistPrice;
 
 // Función global para logout
 window.logout = async () => {
