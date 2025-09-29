@@ -119,57 +119,123 @@ function displayArticles(articles, pagination, stats) {
     document.getElementById('articlesCount').textContent = `${articles.length} artículos`;
 
     const tbody = document.getElementById('articlesTableBody');
-    tbody.innerHTML = articles.map(article => `
-                <tr>
-                    <td>
-                        <div class="article-title" title="${article.title}">
-                            <strong>${article.title}</strong>
-                        </div>
-                        <div class="article-meta">
-                            ID: ${article.id}
-                        </div>
-                    </td>
-                    <td>
-                        <div>${article.psychologistName || 'N/A'}</div>
-                        <div class="article-meta">${article.psychologistEmail || ''}</div>
-                    </td>
-                    <td>
-                        <span class="status-badge status-${article.status}">
-                            ${getStatusText(article.status)}
-                        </span>
-                    </td>
-                    <td>${article.category || 'Sin categoría'}</td>
-                    <td>
-                        <div>${article.views || 0} vistas</div>
-                        <div>${article.likes || 0} likes</div>
-                    </td>
-                    <td>
-                        <div>${formatDate(article.createdAt)}</div>
-                        ${article.publishedAt ? `<div class="article-meta">Pub: ${formatDate(article.publishedAt)}</div>` : ''}
-                    </td>
-                    <td>
-                        <div class="article-actions">
-                            <button class="btn btn-sm btn-info" onclick="viewArticle('${article.id}')">
-                                Ver
-                            </button>
-                            ${article.status === 'draft' ?
-            `<button class="btn btn-sm btn-success" onclick="changeStatus('${article.id}', 'published')">Publicar</button>` :
-            article.status === 'published' ?
-                `<button class="btn btn-sm btn-warning" onclick="changeStatus('${article.id}', 'draft')">Despublicar</button>` :
-                ''
+    tbody.innerHTML = articles.map(article => {
+        // Determinar qué botones mostrar según el estado actual
+        let actionButtons = '';
+        
+        switch(article.status) {
+            case 'draft':
+                actionButtons = `
+                    <button class="btn btn-sm btn-success" onclick="changeStatus('${article.id}', 'published')" 
+                            title="Publicar artículo">
+                        Publicar
+                    </button>
+                    <button class="btn btn-sm btn-secondary" onclick="changeStatus('${article.id}', 'archived')" 
+                            title="Archivar artículo">
+                        Archivar
+                    </button>
+                    <button class="btn btn-sm btn-danger" onclick="changeStatus('${article.id}', 'deleted')" 
+                            title="Eliminar artículo">
+                        Eliminar
+                    </button>
+                `;
+                break;
+                
+            case 'published':
+                actionButtons = `
+                    <button class="btn btn-sm btn-warning" onclick="changeStatus('${article.id}', 'draft')" 
+                            title="Marcar como borrador">
+                        Despublicar
+                    </button>
+                    <button class="btn btn-sm btn-secondary" onclick="changeStatus('${article.id}', 'archived')" 
+                            title="Archivar artículo">
+                        Archivar
+                    </button>
+                    <button class="btn btn-sm btn-danger" onclick="changeStatus('${article.id}', 'deleted')" 
+                            title="Eliminar artículo">
+                        Eliminar
+                    </button>
+                `;
+                break;
+                
+            case 'archived':
+                actionButtons = `
+                    <button class="btn btn-sm btn-success" onclick="changeStatus('${article.id}', 'draft')" 
+                            title="Restaurar a borrador">
+                        Desarchivar
+                    </button>
+                    <button class="btn btn-sm btn-danger" onclick="changeStatus('${article.id}', 'deleted')" 
+                            title="Eliminar artículo">
+                        Eliminar
+                    </button>
+                `;
+                break;
+                
+            case 'deleted':
+                actionButtons = `
+                    <button class="btn btn-sm btn-success" onclick="changeStatus('${article.id}', 'draft')" 
+                            title="Restaurar artículo">
+                        Restaurar
+                    </button>
+                    <button class="btn btn-sm btn-danger" onclick="permanentDelete('${article.id}')" 
+                            title="Eliminar permanentemente">
+                        Eliminar Permanente
+                    </button>
+                `;
+                break;
+                
+            default:
+                // Para artículos con estado no reconocido, mostrar opción de publicar si no está publicado
+                if (!article.isPublished) {
+                    actionButtons = `
+                        <button class="btn btn-sm btn-success" onclick="changeStatus('${article.id}', 'published')" 
+                                title="Publicar artículo">
+                            Publicar
+                        </button>
+                    `;
+                }
         }
-                            ${article.status !== 'archived' ?
-            `<button class="btn btn-sm btn-secondary" onclick="changeStatus('${article.id}', 'archived')">Archivar</button>` :
-            `<button class="btn btn-sm btn-success" onclick="changeStatus('${article.id}', 'draft')">Desarchivar</button>`
-        }
-                            ${article.status !== 'deleted' ?
-            `<button class="btn btn-sm btn-danger" onclick="changeStatus('${article.id}', 'deleted')">Eliminar</button>` :
-            `<button class="btn btn-sm btn-danger" onclick="permanentDelete('${article.id}')">Eliminar Permanente</button>`
-        }
-                        </div>
-                    </td>
-                </tr>
-            `).join('');
+
+        return `
+            <tr>
+                <td>
+                    <div class="article-title" title="${article.title}">
+                        <strong>${article.title}</strong>
+                    </div>
+                    <div class="article-meta">
+                        ID: ${article.id}
+                    </div>
+                </td>
+                <td>
+                    <div>${article.psychologistName || 'N/A'}</div>
+                    <div class="article-meta">${article.psychologistEmail || ''}</div>
+                </td>
+                <td>
+                    <span class="status-badge status-${article.status}">
+                        ${getStatusText(article.status)}
+                    </span>
+                </td>
+                <td>${article.category || 'Sin categoría'}</td>
+                <td>
+                    <div>${article.views || 0} vistas</div>
+                    <div>${article.likes || 0} likes</div>
+                </td>
+                <td>
+                    <div>${formatDate(article.createdAt)}</div>
+                    ${article.publishedAt ? `<div class="article-meta">Pub: ${formatDate(article.publishedAt)}</div>` : ''}
+                </td>
+                <td>
+                    <div class="article-actions">
+                        <button class="btn btn-sm btn-info" onclick="viewArticle('${article.id}')" 
+                                title="Ver detalles del artículo">
+                            Ver
+                        </button>
+                        ${actionButtons}
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join('');
 }
 
 // Obtener texto del estado
@@ -298,12 +364,36 @@ window.changeStatus = async function (articleId, newStatus) {
         deleted: 'eliminar'
     };
 
-    if (!confirm(`¿Estás seguro de que quieres ${statusTexts[newStatus]} este artículo?`)) {
+    const confirmMessages = {
+        published: '¿Estás seguro de que quieres publicar este artículo?',
+        draft: '¿Estás seguro de que quieres marcar este artículo como borrador?',
+        archived: '¿Estás seguro de que quieres archivar este artículo?',
+        deleted: '¿Estás seguro de que quieres eliminar este artículo?'
+    };
+
+    if (!confirm(confirmMessages[newStatus])) {
         return;
     }
 
+    // Mostrar indicador de carga
+    const loadingOverlay = document.createElement('div');
+    loadingOverlay.innerHTML = `
+        <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+                    background: rgba(0,0,0,0.5); display: flex; align-items: center; 
+                    justify-content: center; z-index: 10000;">
+            <div style="background: white; padding: 20px; border-radius: 8px; 
+                        display: flex; align-items: center; gap: 15px;">
+                <div class="spinner"></div>
+                <span>Actualizando estado del artículo...</span>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(loadingOverlay);
+
     try {
         const idToken = await currentUser.getIdToken();
+        console.log('Enviando solicitud para cambiar estado:', { articleId, newStatus });
+        
         const response = await fetch(`${BACKEND_URL}/api/admin/articles/${articleId}/status`, {
             method: 'PUT',
             headers: {
@@ -316,18 +406,29 @@ window.changeStatus = async function (articleId, newStatus) {
             })
         });
 
-        if (!response.ok) throw new Error('Error actualizando estado');
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error('Error response:', errorData);
+            throw new Error(`Error ${response.status}: ${errorData.error || 'Error desconocido'}`);
+        }
 
         const result = await response.json();
-        alert(result.message);
-        await loadArticles();
+        console.log('Respuesta exitosa:', result);
+        
+        // Mostrar mensaje de éxito
+        alert(result.message || `Artículo ${statusTexts[newStatus]} exitosamente`);
+        
+        // Recargar datos para reflejar cambios
+        await Promise.all([loadArticles(), loadStats()]);
 
     } catch (error) {
         console.error('Error actualizando estado:', error);
-        alert('Error actualizando estado del artículo');
+        alert(`Error actualizando estado del artículo: ${error.message}`);
+    } finally {
+        // Remover indicador de carga
+        document.body.removeChild(loadingOverlay);
     }
 }
-
 // Cambiar estado desde modal
 window.changeStatusFromModal = async function (articleId, newStatus) {
     await changeStatus(articleId, newStatus);

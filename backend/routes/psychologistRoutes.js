@@ -173,4 +173,46 @@ router.delete('/:id', verifyFirebaseToken, verifyAdminPrivileges, async (req, re
   }
 });
 
+// Actualiza precio de sesions del psicologo
+router.put('/psychologists/:id/price', verifyFirebaseToken, verifyAdminPrivileges, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { price } = req.body;
+
+    // Validar el precio
+    if (price === undefined || price === null) {
+      return res.status(400).json({ error: 'El precio es requerido' });
+    }
+
+    const priceNumber = parseFloat(price);
+    if (isNaN(priceNumber) || priceNumber < 0) {
+      return res.status(400).json({ error: 'El precio debe ser un número válido mayor o igual a 0' });
+    }
+
+    // Verificar que el psicólogo existe
+    const psychologistRef = db.collection('psychologists').doc(id);
+    const psychologistDoc = await psychologistRef.get();
+
+    if (!psychologistDoc.exists) {
+      return res.status(404).json({ error: 'Psicólogo no encontrado' });
+    }
+
+    // Actualizar en la base de datos
+    await psychologistRef.update({
+      price: priceNumber,
+      lastUpdated: admin.firestore.FieldValue.serverTimestamp(),
+      adminUid: req.userId
+    });
+
+    res.json({ 
+      success: true, 
+      message: 'Precio actualizado correctamente',
+      price: priceNumber
+    });
+
+  } catch (error) {
+    console.error('Error actualizando precio:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
 export default router;
