@@ -20,6 +20,6 @@ export const auth = getAuth(app);
 // Backend URL 
 export const BACKEND_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
   ? 'http://127.0.0.1:3000' 
-  : 'https://backend-en-produccion.com';
+  : 'https://admin-aurora-1z8p.onrender.com'; 
 
 console.log(' Firebase configurado para:', firebaseConfig.projectId);
