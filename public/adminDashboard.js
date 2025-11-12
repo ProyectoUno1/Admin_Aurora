@@ -1,57 +1,233 @@
-// Función para cargar todas las estadísticas del dashboard
-async function fetchAllStats(idToken) {
+import { auth, BACKEND_URL } from "./firebase-config.js";
+import {
+  onAuthStateChanged,
+  signOut,
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+// Verificar autenticaciÃ³n al cargar la pÃ¡gina
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    console.log("No hay usuario autenticado, redirigiendo a login...");
+    window.location.href = "loginAdmin.html";
+    return;
+  }
+
+  try {
+    console.log("=== INICIO VERIFICACIÃ“N ADMIN ===");
+    console.log("Usuario autenticado:", user.email);
+    console.log("UID:", user.uid);
+
+    // Verificar token actual
+    const currentToken = await user.getIdTokenResult(true);
+    console.log("Claims actuales:", currentToken.claims);
+    console.log("Â¿Tiene claim de admin?", currentToken.claims.admin);
+
+    // Verificar que tiene privilegios de admin
+    const idToken = await user.getIdToken(true);
+    console.log("Token obtenido, verificando con el backend...");
+    console.log("BACKEND_URL:", BACKEND_URL);
+
+    const response = await fetch(`${BACKEND_URL}/api/login/verify`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${idToken}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    console.log("Status de respuesta:", response.status);
+    console.log("Headers de respuesta:", response.headers);
+    
+    let responseData;
     try {
-        // Cargar estadísticas en paralelo
-        await Promise.all([
-            fetchPsychologistStats(idToken),
-            fetchPatientStats(idToken),
-            fetchArticleStats(idToken),
-            fetchAppointmentStats(idToken),
-            fetchTicketStats(idToken),
-            fetchPaymentStats(idToken)
-        ]);
-    } catch (error) {
-        console.error("Error al cargar estadísticas:", error);
+      responseData = await response.json();
+      console.log("Datos de la respuesta:", responseData);
+    } catch (jsonError) {
+      console.error("Error parseando JSON:", jsonError);
+      const textResponse = await response.text();
+      console.log("Respuesta como texto:", textResponse);
+      throw new Error("Respuesta invÃ¡lida del servidor");
     }
+
+    if (!response.ok) {
+      console.error("Error del servidor:", responseData);
+      throw new Error(responseData.error || `Error ${response.status}: ${response.statusText}`);
+    }
+
+    // Verificar estructura de respuesta
+    if (!responseData.admin) {
+      console.error("Estructura de respuesta invÃ¡lida:", responseData);
+      throw new Error("Estructura de respuesta invÃ¡lida del servidor");
+    }
+
+    const adminData = responseData.admin;
+
+    // Mostrar informaciÃ³n del admin
+    document.getElementById("userEmail").textContent = adminData.email;
+    document.getElementById("adminEmail").textContent = adminData.email;
+    document.getElementById("adminUid").textContent = adminData.uid;
+    document.getElementById("adminCreated").textContent = new Date(
+      adminData.createdAt
+    ).toLocaleDateString();
+
+    // Cargar estadÃ­sticas
+    await loadPsychologistStats();
+    await loadArticleStats(idToken);
+    await loadAppointmentStats(idToken);
+
+    fetchPatientStats(idToken);
+
+    // Ocultar loading y mostrar dashboard
+    document.getElementById("loading").style.display = "none";
+    document.getElementById("dashboard").style.display = "block";
+    
+    console.log("=== VERIFICACIÃ“N EXITOSA ===");
+
+  } catch (error) {
+    console.error("=== ERROR EN VERIFICACIÃ“N ===");
+    console.error("Error completo:", error);
+    console.error("Mensaje:", error.message);
+    
+    // REEMPLAZO DE alert() por SweetAlert2
+    await Swal.fire({
+      icon: 'error',
+      title: 'Error de VerificaciÃ³n',
+      text: `Error de verificaciÃ³n: ${error.message}. Redirigiendo a login...`,
+      confirmButtonText: 'Entendido'
+    });
+    
+    window.location.href = "loginAdmin.html";
+  }
+});
+
+// Cargar estadísticas de psicólogos
+async function loadPsychologistStats() {
+  try {
+    const idToken = await auth.currentUser.getIdToken();
+    const response = await fetch(`${BACKEND_URL}/api/stats/psychologists`, {
+      headers: {
+        'Authorization': `Bearer ${idToken}`
+      }
+    });
+
+    if (response.ok) {
+      const stats = await response.json();
+      document.getElementById('totalPsychologists').textContent = stats.total || 0;
+      document.getElementById('activePsychologists').textContent = stats.active || 0;
+      document.getElementById('pendingPsychologists').textContent = stats.pending || 0;
+      
+      const pendingValidationsBadge = document.getElementById('pendingValidations'); 
+      if (pendingValidationsBadge) {
+        pendingValidationsBadge.textContent = `${stats.pending || 0} pendientes`;
+      }
+      
+    } else {
+      console.error('Error cargando estadísticas de psicólogos. Código:', response.status);
+      document.getElementById('totalPsychologists').textContent = 'Error';
+      document.getElementById('activePsychologists').textContent = 'Error';
+      document.getElementById('pendingPsychologists').textContent = 'Error';
+    }
+  } catch (error) {
+    console.error('Error cargando estadísticas de psicólogos:', error);
+    document.getElementById('totalPsychologists').textContent = 'Error';
+    document.getElementById('activePsychologists').textContent = 'Error';
+    document.getElementById('pendingPsychologists').textContent = 'Error';
+  }
 }
 
-// Estadísticas de psicólogos
-async function fetchPsychologistStats(idToken) {
-    try {
-        const response = await fetch(`${BACKEND_URL}/api/stats/psychologists`, {
-            method: "GET",
-            headers: {
-                Authorization: `Bearer ${idToken}`,
-                "Content-Type": "application/json",
-            },
-        });
+// Cargar estadísticas de artículos
+async function loadArticleStats(idToken) {
+  try {
+    const response = await fetch(`${BACKEND_URL}/api/admin/articles/stats/overview`, {
+      headers: {
+        'Authorization': `Bearer ${idToken}`
+      }
+    });
 
-        if (!response.ok) {
-            console.error("No se pudieron cargar las estadísticas de psicólogos.");
-            return;
-        }
+    if (response.ok) {
+      const stats = await response.json();
+      
+      const total = stats.total || 0;
+      const drafts = stats.draft || 0; 
+      
+      document.getElementById('totalArticles').textContent = total;
+      document.getElementById('pendingArticles').textContent = drafts;
 
-        const stats = await response.json();
-        
-        // Actualizar tarjetas de estadísticas
-        const activePsychEl = document.querySelector('.stat-card:nth-child(1) .stat-number');
-        const pendingValidEl = document.querySelector('.stat-card:nth-child(2) .stat-number');
-        
-        if (activePsychEl) activePsychEl.textContent = stats.active || 0;
-        if (pendingValidEl) pendingValidEl.textContent = stats.pending || 0;
-        
-        // Actualizar badge en la tarjeta de acción
-        const pendingValidBadge = document.getElementById('pendingValidations');
-        if (pendingValidBadge) {
-            pendingValidBadge.textContent = `${stats.pending || 0} pendientes`;
-        }
-        
-    } catch (error) {
-        console.error("Error al obtener estadísticas de psicólogos:", error);
+      const pendingArticlesBadge = document.getElementById('pendingArticlesBadge'); 
+      if (pendingArticlesBadge) {
+        pendingArticlesBadge.textContent = `${drafts} pendientes`;
+      }
+      
+    } else {
+      console.error('Error cargando estadísticas de artículos. Código:', response.status);
+      document.getElementById('totalArticles').textContent = 'Error';
+      document.getElementById('pendingArticles').textContent = 'Error';
     }
+  } catch (error) {
+    console.error('Error cargando estadísticas de artículos:', error);
+    document.getElementById('totalArticles').textContent = 'Error';
+    document.getElementById('pendingArticles').textContent = 'Error';
+  }
 }
 
-// Estadísticas de pacientes
+// Cargar estadísticas de sesiones (appointments)
+// Cargar estadísticas de sesiones (appointments)
+// Cargar estadísticas de sesiones (appointments)
+// Cargar estadísticas de sesiones (appointments)
+async function loadAppointmentStats(idToken) {
+  try {
+    // Usamos el endpoint que lista las citas, que es más probable que funcione.
+    const response = await fetch(`${BACKEND_URL}/api/admin/appointments`, {
+      headers: {
+        'Authorization': `Bearer ${idToken}`
+      }
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      
+      // Asumimos que la respuesta tiene una clave 'appointments' que es un array
+      const appointments = data.appointments || []; 
+      
+      let totalAppointments = appointments.length;
+      let completedAppointments = 0;
+      let pendingAppointments = 0;
+      
+      // Contar estados de citas directamente en el frontend
+      appointments.forEach(appointment => {
+          // Ajusta las claves de estado según las que use tu backend (ej: 'status')
+          const status = appointment.status ? appointment.status.toUpperCase() : 'PENDING';
+
+          if (status === 'COMPLETED' || status === 'FINISHED') {
+              completedAppointments++;
+          } else if (status === 'PENDING' || status === 'SCHEDULED' || status === 'UPCOMING') {
+              pendingAppointments++;
+          }
+          // El total ya está cubierto por el largo del array
+      });
+      
+      // Si el total de citas viene como una propiedad de la respuesta, úsala.
+      totalAppointments = data.totalAppointments || appointments.length;
+
+      // Actualizar las tarjetas del dashboard
+      document.getElementById('totalAppointments').textContent = totalAppointments;
+      document.getElementById('completedAppointments').textContent = completedAppointments;
+      document.getElementById('pendingAppointments').textContent = pendingAppointments;
+
+    } else {
+      console.error('Error cargando estadísticas de sesiones. Código:', response.status);
+      document.getElementById('totalAppointments').textContent = 'Error';
+      document.getElementById('completedAppointments').textContent = 'Error';
+      document.getElementById('pendingAppointments').textContent = 'Error';
+    }
+  } catch (error) {
+    console.error('Error cargando estadísticas de sesiones:', error);
+    document.getElementById('totalAppointments').textContent = 'Error';
+    document.getElementById('completedAppointments').textContent = 'Error';
+    document.getElementById('pendingAppointments').textContent = 'Error';
+  }
+}
+
 async function fetchPatientStats(idToken) {
     try {
         const response = await fetch(`${BACKEND_URL}/api/admin/patients`, {
@@ -63,7 +239,7 @@ async function fetchPatientStats(idToken) {
         });
 
         if (!response.ok) {
-            console.error("No se pudieron cargar las estadísticas de pacientes.");
+            console.error("No se pudieron cargar las estadÃ­sticas de pacientes.");
             return;
         }
 
@@ -75,163 +251,28 @@ async function fetchPatientStats(idToken) {
         
         // Actualizar el badge en el Dashboard principal
         const subscribedPatientsBadge = document.getElementById('subscribedPatients');
-        if (subscribedPatientsBadge) {
-            subscribedPatientsBadge.textContent = `${subscribedCount} Suscritos`;
-        }
+        subscribedPatientsBadge.textContent = `${subscribedCount} Suscritos`;
         
     } catch (error) {
-        console.error("Error al obtener estadísticas de pacientes:", error);
-        const badge = document.getElementById('subscribedPatients');
-        if (badge) badge.textContent = 'Error';
+        console.error("Error al obtener estadÃ­sticas de pacientes:", error);
+        document.getElementById('subscribedPatients').textContent = 'Error';
     }
 }
 
-// Estadísticas de artículos
-async function fetchArticleStats(idToken) {
-    try {
-        const response = await fetch(`${BACKEND_URL}/api/admin/articles/stats/overview`, {
-            method: "GET",
-            headers: {
-                Authorization: `Bearer ${idToken}`,
-                "Content-Type": "application/json",
-            },
-        });
-
-        if (!response.ok) {
-            console.error("No se pudieron cargar las estadísticas de artículos.");
-            return;
-        }
-
-        const stats = await response.json();
-        
-        // Actualizar tarjeta de estadísticas
-        const articleStatEl = document.querySelector('.stat-card:nth-child(5) .stat-number');
-        if (articleStatEl) {
-            articleStatEl.textContent = stats.total || 0;
-        }
-        
-        // Actualizar badge en la tarjeta de acción
-        const pendingArticlesBadge = document.getElementById('pendingArticles');
-        if (pendingArticlesBadge) {
-            pendingArticlesBadge.textContent = `${stats.draft || 0} por revisar`;
-        }
-        
-    } catch (error) {
-        console.error("Error al obtener estadísticas de artículos:", error);
-    }
-}
-
-// Estadísticas de citas
-async function fetchAppointmentStats(idToken) {
-    try {
-        const response = await fetch(`${BACKEND_URL}/api/admin/appointments`, {
-            method: "GET",
-            headers: {
-                Authorization: `Bearer ${idToken}`,
-                "Content-Type": "application/json",
-            },
-        });
-
-        if (!response.ok) {
-            console.error("No se pudieron cargar las estadísticas de citas.");
-            return;
-        }
-
-        const data = await response.json();
-        const appointments = data.appointments || [];
-        
-        // Contar citas completadas y calificadas para el total de sesiones
-        const completedSessions = appointments.filter(
-            a => a.status === 'completed' || a.status === 'rated'
-        ).length;
-        
-        // Contar citas pendientes
-        const pendingAppointments = appointments.filter(
-            a => a.status === 'pending' || a.status === 'confirmed'
-        ).length;
-        
-        // Actualizar tarjeta de estadísticas
-        const sessionStatEl = document.querySelector('.stat-card:nth-child(4) .stat-number');
-        if (sessionStatEl) {
-            sessionStatEl.textContent = completedSessions.toLocaleString();
-        }
-        
-        // Actualizar badge en la tarjeta de acción
-        const pendingAppointmentsBadge = document.getElementById('pendingAppointments');
-        if (pendingAppointmentsBadge) {
-            pendingAppointmentsBadge.textContent = `${pendingAppointments} Pendientes`;
-        }
-        
-    } catch (error) {
-        console.error("Error al obtener estadísticas de citas:", error);
-    }
-}
-
-// Estadísticas de tickets
-async function fetchTicketStats(idToken) {
-    try {
-        const response = await fetch(`${BACKEND_URL}/api/support/tickets`, {
-            method: "GET",
-            headers: {
-                Authorization: `Bearer ${idToken}`,
-                "Content-Type": "application/json",
-            },
-        });
-
-        if (!response.ok) {
-            console.error("No se pudieron cargar las estadísticas de tickets.");
-            return;
-        }
-
-        const tickets = await response.json();
-        
-        // Contar tickets abiertos
-        const openTickets = tickets.filter(
-            t => t.status === 'open' || t.status === 'in_progress'
-        ).length;
-        
-        // Actualizar badge en la tarjeta de acción
-        const pendingTicketsBadge = document.getElementById('pendingTickets');
-        if (pendingTicketsBadge) {
-            pendingTicketsBadge.textContent = `${openTickets} Abiertos`;
-        }
-        
-    } catch (error) {
-        console.error("Error al obtener estadísticas de tickets:", error);
-    }
-}
-
-// Estadísticas de pagos
-async function fetchPaymentStats(idToken) {
-    try {
-        const response = await fetch(`${BACKEND_URL}/api/admin/psychologists/payments`, {
-            method: "GET",
-            headers: {
-                Authorization: `Bearer ${idToken}`,
-                "Content-Type": "application/json",
-            },
-        });
-
-        if (!response.ok) {
-            console.error("No se pudieron cargar las estadísticas de pagos.");
-            return;
-        }
-
-        const data = await response.json();
-        const payments = data.payments || [];
-        
-        // Contar pagos pendientes
-        const pendingPayments = payments.filter(p => p.totalPending > 0).length;
-        
-        // Actualizar badge en la tarjeta de acción
-        const pendingPaymentsBadge = document.getElementById('pendingPaymentsCount');
-        if (pendingPaymentsBadge) {
-            pendingPaymentsBadge.textContent = `${pendingPayments} Pendientes`;
-        }
-        
-    } catch (error) {
-        console.error("Error al obtener estadísticas de pagos:", error);
-        const badge = document.getElementById('pendingPaymentsCount');
-        if (badge) badge.textContent = 'Error';
-    }
-}
+// FunciÃ³n global para logout
+window.logout = async () => {
+  try {
+    await signOut(auth);
+    localStorage.removeItem("firebaseIdToken");
+    localStorage.removeItem("adminData");
+    window.location.href = "loginAdmin.html";
+  } catch (error) {
+    console.error("Error en logout:", error);
+    // SweetAlert para el error de logout
+    Swal.fire({
+      icon: 'error',
+      title: 'Error de Cierre de SesiÃ³n',
+      text: 'No se pudo cerrar la sesiÃ³n correctamente. Intenta de nuevo.',
+    });
+  }
+};

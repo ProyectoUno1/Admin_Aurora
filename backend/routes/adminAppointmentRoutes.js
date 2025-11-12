@@ -146,4 +146,42 @@ router.get('/appointments/history', verifyAdminToken, async (req, res) => {
     }
 });
 
+//Obtener estadísticas de citas 
+router.get('/appointments/overview', verifyAdminToken, async (req, res) => {
+    try {
+        const snapshot = await db.collection('appointments').get();
+        
+        const stats = {
+            total: snapshot.size,
+            completed: 0,
+            pending: 0,
+            cancelled: 0,
+        };
+
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            const status = data.status ? data.status.toUpperCase() : 'PENDING'; 
+
+            if (status === 'COMPLETED' || status === 'FINISHED') {
+                stats.completed++;
+            } else if (status === 'CANCELLED') {
+                stats.cancelled++;
+            } else {
+                stats.pending++;
+            }
+        });
+
+        res.json({
+            total: stats.total,
+            completed: stats.completed,
+            pending: stats.pending,
+            cancelled: stats.cancelled // Opcional
+        });
+
+    } catch (error) {
+        console.error('Error al obtener el resumen de estadísticas de citas:', error);
+        res.status(500).json({ error: 'Error al obtener el resumen de estadísticas de citas.' });
+    }
+});
+
 export default router;
