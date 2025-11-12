@@ -29,6 +29,11 @@ async function loadInitialData() {
         await loadArticles();
     } catch (error) {
         console.error('Error cargando datos:', error);
+        await Swal.fire({
+            icon: 'error',
+            title: 'Error de Carga',
+            text: 'No se pudieron cargar los datos iniciales. Inténtalo de nuevo.',
+        });
     }
 }
 
@@ -55,27 +60,27 @@ async function loadStats() {
 function displayStats(stats) {
     const statsGrid = document.getElementById('statsGrid');
     statsGrid.innerHTML = `
-                <div class="stat-card">
-                    <div class="stat-number">${stats.total}</div>
-                    <div class="stat-label">Total Artículos</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">${stats.published}</div>
-                    <div class="stat-label">Publicados</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">${stats.draft}</div>
-                    <div class="stat-label">Borradores</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">${stats.totalViews.toLocaleString()}</div>
-                    <div class="stat-label">Total Vistas</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">${stats.totalLikes.toLocaleString()}</div>
-                    <div class="stat-label">Total Likes</div>
-                </div>
-            `;
+        <div class="stat-card">
+            <div class="stat-number">${stats.total}</div>
+            <div class="stat-label">Total Artículos</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">${stats.published}</div>
+            <div class="stat-label">Publicados</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">${stats.draft}</div>
+            <div class="stat-label">Borradores</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">${stats.totalViews.toLocaleString()}</div>
+            <div class="stat-label">Total Vistas</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">${stats.totalLikes.toLocaleString()}</div>
+            <div class="stat-label">Total Likes</div>
+        </div>
+    `;
 }
 
 // Cargar artículos
@@ -102,7 +107,9 @@ async function loadArticles() {
     } catch (error) {
         console.error('Error cargando artículos:', error);
         document.getElementById('loading').style.display = 'none';
+        document.getElementById('articlesContainer').style.display = 'none';
         document.getElementById('emptyState').style.display = 'block';
+        // Opcional: Notificar al usuario con Swal.fire si la carga falla
     }
 }
 
@@ -185,7 +192,6 @@ function displayArticles(articles, pagination, stats) {
                 break;
                 
             default:
-                // Para artículos con estado no reconocido, mostrar opción de publicar si no está publicado
                 if (!article.isPublished) {
                     actionButtons = `
                         <button class="btn btn-sm btn-success" onclick="changeStatus('${article.id}', 'published')" 
@@ -199,11 +205,27 @@ function displayArticles(articles, pagination, stats) {
         return `
             <tr>
                 <td>
-                    <div class="article-title" title="${article.title}">
-                        <strong>${article.title}</strong>
-                    </div>
-                    <div class="article-meta">
-                        ID: ${article.id}
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        ${article.imageUrl ? `
+                            <img src="${article.imageUrl}" 
+                                alt="${article.title}" 
+                                style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; border: 2px solid #e0e0e0;"
+                                onerror="this.src='https://via.placeholder.com/60x60?text=Sin+Imagen'">
+                        ` : `
+                            <div style="width: 60px; height: 60px; background: #f0f0f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; border: 2px solid #e0e0e0;">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="#999">
+                                    <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                                </svg>
+                            </div>
+                        `}
+                        <div>
+                            <div class="article-title" title="${article.title}">
+                                <strong>${article.title}</strong>
+                            </div>
+                            <div class="article-meta">
+                                ID: ${article.id}
+                            </div>
+                        </div>
                     </div>
                 </td>
                 <td>
@@ -276,6 +298,28 @@ window.viewArticle = async function (articleId) {
 
         document.getElementById('modalBody').innerHTML = `
             <div class="article-detail-header">
+                ${article.imageUrl ? `
+                    <div style="margin-bottom: 20px;">
+                        <img src="${article.imageUrl}" 
+                             alt="${article.title}" 
+                             style="width: 100%; max-height: 400px; object-fit: cover; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);"
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div style="display: none; width: 100%; height: 300px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius: 12px; align-items: center; justify-content: center; flex-direction: column; gap: 10px;">
+                            <svg width="60" height="60" viewBox="0 0 24 24" fill="#999">
+                                <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                            </svg>
+                            <span style="color: #999; font-weight: 500;">Error cargando imagen</span>
+                        </div>
+                    </div>
+                ` : `
+                    <div style="margin-bottom: 20px; width: 100%; height: 300px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 10px; border: 2px dashed #d0d0d0;">
+                        <svg width="60" height="60" viewBox="0 0 24 24" fill="#999">
+                            <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                        </svg>
+                        <span style="color: #999; font-weight: 500;">Sin imagen</span>
+                    </div>
+                `}
+                
                 <h4>${article.title}</h4>
                 <div class="article-detail-meta">
                     <div><strong>ID:</strong> ${article.id}</div>
@@ -288,6 +332,7 @@ window.viewArticle = async function (articleId) {
                     <div><strong>Creado:</strong> ${formatDate(article.createdAt)}</div>
                     ${article.publishedAt ? `<div><strong>Publicado:</strong> ${formatDate(article.publishedAt)}</div>` : ''}
                     ${article.updatedAt ? `<div><strong>Actualizado:</strong> ${formatDate(article.updatedAt)}</div>` : ''}
+                    ${article.imageUrl ? `<div><strong>URL Imagen:</strong> <a href="${article.imageUrl}" target="_blank" style="color: #3498db; text-decoration: none;">Ver imagen completa ↗</a></div>` : ''}
                     ${article.tags?.length > 0 ? `
                     <div>
                         <strong>Tags:</strong> 
@@ -344,7 +389,11 @@ window.viewArticle = async function (articleId) {
 
     } catch (error) {
         console.error('Error cargando detalles del artículo:', error);
-        alert('Error cargando detalles del artículo');
+        await Swal.fire({
+            icon: 'error',
+            title: 'Error de Carga',
+            text: 'Error cargando detalles del artículo. Inténtalo de nuevo.',
+        });
     }
 }
 
@@ -358,41 +407,47 @@ document.addEventListener('keydown', function (event) {
 // Cambiar estado del artículo
 window.changeStatus = async function (articleId, newStatus) {
     const statusTexts = {
-        published: 'publicar',
-        draft: 'marcar como borrador',
-        archived: 'archivar',
-        deleted: 'eliminar'
+        published: 'publicado',
+        draft: 'marcado como borrador',
+        archived: 'archivado',
+        deleted: 'eliminado'
     };
 
     const confirmMessages = {
         published: '¿Estás seguro de que quieres publicar este artículo?',
         draft: '¿Estás seguro de que quieres marcar este artículo como borrador?',
         archived: '¿Estás seguro de que quieres archivar este artículo?',
-        deleted: '¿Estás seguro de que quieres eliminar este artículo?'
+        deleted: '¿Estás seguro de que quieres eliminar este artículo (mover a papelera)?'
     };
 
-    if (!confirm(confirmMessages[newStatus])) {
+    // 1. Confirmación con SweetAlert
+    const result = await Swal.fire({
+        title: 'Confirmar Acción',
+        text: confirmMessages[newStatus],
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: newStatus === 'deleted' ? '#dc3545' : '#106f8c',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: `Sí, ${statusTexts[newStatus]}`,
+        cancelButtonText: 'Cancelar'
+    });
+
+    if (!result.isConfirmed) {
         return;
     }
 
-    // Mostrar indicador de carga
-    const loadingOverlay = document.createElement('div');
-    loadingOverlay.innerHTML = `
-        <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-                    background: rgba(0,0,0,0.5); display: flex; align-items: center; 
-                    justify-content: center; z-index: 10000;">
-            <div style="background: white; padding: 20px; border-radius: 8px; 
-                        display: flex; align-items: center; gap: 15px;">
-                <div class="spinner"></div>
-                <span>Actualizando estado del artículo...</span>
-            </div>
-        </div>
-    `;
-    document.body.appendChild(loadingOverlay);
+    // 2. Mostrar indicador de carga con SweetAlert
+    Swal.fire({
+        title: 'Actualizando estado...',
+        text: 'Por favor, espera. Esta acción puede tardar unos segundos.',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
 
     try {
         const idToken = await currentUser.getIdToken();
-        console.log('Enviando solicitud para cambiar estado:', { articleId, newStatus });
         
         const response = await fetch(`${BACKEND_URL}/api/admin/articles/${articleId}/status`, {
             method: 'PUT',
@@ -408,42 +463,86 @@ window.changeStatus = async function (articleId, newStatus) {
 
         if (!response.ok) {
             const errorData = await response.json();
-            console.error('Error response:', errorData);
             throw new Error(`Error ${response.status}: ${errorData.error || 'Error desconocido'}`);
         }
 
         const result = await response.json();
-        console.log('Respuesta exitosa:', result);
         
-        // Mostrar mensaje de éxito
-        alert(result.message || `Artículo ${statusTexts[newStatus]} exitosamente`);
+        // 3. Mostrar mensaje de éxito
+        Swal.close();
+        await Swal.fire({
+            icon: 'success',
+            title: '¡Éxito!',
+            text: result.message || `Artículo ${statusTexts[newStatus]} exitosamente.`,
+            confirmButtonColor: '#106f8c',
+        });
         
         // Recargar datos para reflejar cambios
         await Promise.all([loadArticles(), loadStats()]);
 
     } catch (error) {
-        console.error('Error actualizando estado:', error);
-        alert(`Error actualizando estado del artículo: ${error.message}`);
-    } finally {
-        // Remover indicador de carga
-        document.body.removeChild(loadingOverlay);
+        // 4. Mostrar mensaje de error
+        Swal.close();
+        await Swal.fire({
+            icon: 'error',
+            title: 'Error al actualizar',
+            text: `No se pudo actualizar el estado del artículo: ${error.message}`,
+        });
     }
 }
+
 // Cambiar estado desde modal
 window.changeStatusFromModal = async function (articleId, newStatus) {
+    // La función changeStatus maneja la confirmación y la carga con SweetAlert
     await changeStatus(articleId, newStatus);
-    closeModal();
+    // Si la acción fue exitosa, se recargan los artículos, lo que hace que el modal ya no sea relevante.
+    // Simplemente cerramos el modal aquí para asegurar.
+    closeModal(); 
 }
 
 // Eliminar permanentemente
 window.permanentDelete = async function (articleId) {
-    if (!confirm('¿Estás seguro? Esta acción eliminará permanentemente el artículo y no se puede deshacer.')) {
+    // 1. Primer confirmación
+    const firstConfirm = await Swal.fire({
+        title: 'Eliminación Permanente',
+        text: 'Esta acción eliminará permanentemente el artículo y no se puede deshacer. ¿Continuar?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Sí, ¡Eliminar!',
+        cancelButtonText: 'Cancelar'
+    });
+
+    if (!firstConfirm.isConfirmed) {
         return;
     }
 
-    if (!confirm('CONFIRMACIÓN FINAL: Se eliminará el artículo y todos sus datos relacionados. ¿Continuar?')) {
+    // 2. Confirmación final
+    const finalConfirm = await Swal.fire({
+        title: 'CONFIRMACIÓN FINAL',
+        text: 'Se eliminará el artículo y todos sus datos relacionados (vistas, likes). Esta acción es irreversible. ¿Confirmas?',
+        icon: 'error',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: '¡SÍ, ELIMINAR PERMANENTEMENTE!',
+        cancelButtonText: 'Volver atrás'
+    });
+
+    if (!finalConfirm.isConfirmed) {
         return;
     }
+
+    // 3. Mostrar indicador de carga con SweetAlert
+    Swal.fire({
+        title: 'Eliminando permanentemente...',
+        text: 'Procesando la solicitud, por favor, espera.',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
 
     try {
         const idToken = await currentUser.getIdToken();
@@ -458,16 +557,33 @@ window.permanentDelete = async function (articleId) {
             })
         });
 
-        if (!response.ok) throw new Error('Error eliminando artículo');
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Error eliminando artículo');
+        }
 
         const result = await response.json();
-        alert(result.message);
-        await loadArticles();
-        await loadStats();
+
+        // 4. Mostrar mensaje de éxito
+        Swal.close();
+        await Swal.fire({
+            icon: 'success',
+            title: '¡Eliminación Exitosa!',
+            text: result.message || 'El artículo ha sido eliminado permanentemente.',
+            confirmButtonColor: '#106f8c',
+        });
+        
+        await Promise.all([loadArticles(), loadStats()]);
 
     } catch (error) {
+        // 5. Mostrar mensaje de error
+        Swal.close();
         console.error('Error eliminando artículo:', error);
-        alert('Error eliminando artículo permanentemente');
+        await Swal.fire({
+            icon: 'error',
+            title: 'Error al eliminar',
+            text: 'Error eliminando artículo permanentemente. Revisa la consola para más detalles.',
+        });
     }
 }
 
@@ -484,6 +600,7 @@ window.applyFilters = function () {
     };
     loadArticles();
 }
+
 
 // Cerrar modal
 window.closeModal = function () {

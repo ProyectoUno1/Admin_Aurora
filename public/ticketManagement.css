@@ -1,0 +1,586 @@
+/* ticketManagement.css - MEJORADO */
+
+/* ================================================================= */
+/* 1. ESTILOS BASE Y LAYOUT GENERAL (Consistentes con appointments)  */
+/* ================================================================= */
+
+.content {
+    flex: 1;
+    padding: 30px;
+    overflow-y: auto;
+}
+
+.content-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.dashboard-title {
+    font-size: 1.8em;
+    color: #106f8c;
+    font-weight: 600;
+}
+
+.section-title {
+    font-size: 1.6rem;
+    color: #106f8c;
+    margin-bottom: 25px;
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 10px;
+}
+
+/* ================================================================= */
+/* 2. ESTILOS DE TARJETAS DE ESTADÍSTICAS                            */
+/* ================================================================= */
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 25px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background-color: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(16, 111, 140, 0.1);
+}
+
+.stat-icon svg {
+    fill: #106f8c;
+    width: 28px;
+    height: 28px;
+}
+
+.stat-info {
+    flex: 1;
+}
+
+.stat-number {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #106f8c;
+    line-height: 1;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    font-size: 0.95rem;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+/* ================================================================= */
+/* 3. ESTILOS DE FILTROS Y CONTROLES                                 */
+/* ================================================================= */
+
+.filters-section {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    margin-bottom: 25px;
+    padding: 20px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    flex-wrap: wrap;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.filter-group label {
+    font-weight: 600;
+    color: #555;
+    font-size: 0.9rem;
+}
+
+.filter-select {
+    padding: 10px 15px;
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+    background-color: #ffffff;
+    font-size: 0.95rem;
+    min-width: 150px;
+}
+
+.btn-refresh {
+    background-color: #106f8c;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+    transition: background-color 0.2s;
+    margin-top: 20px;
+}
+
+.btn-refresh:hover {
+    background-color: #0d5a70;
+}
+
+/* ================================================================= */
+/* 4. ESTILOS DE TABLA (Consistentes con appointments)               */
+/* ================================================================= */
+
+.table-container {
+    overflow-x: auto;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    margin-bottom: 30px;
+}
+
+.tickets-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.tickets-table thead tr {
+    background-color: #f0f4f7;
+    color: #333;
+    text-align: left;
+}
+
+.tickets-table th, 
+.tickets-table td {
+    padding: 18px 15px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.tickets-table th {
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    color: #5a6470;
+}
+
+.tickets-table tbody tr:hover {
+    background-color: #f1f8ff;
+}
+
+/* ================================================================= */
+/* 5. ESTILOS DE BADGES Y ETIQUETAS DE ESTADO                        */
+/* ================================================================= */
+
+.status-badge, 
+.priority-badge, 
+.category-badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-align: center;
+    min-width: 90px;
+}
+
+/* Estados de tickets */
+.status-open {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.status-in_progress {
+    background-color: #e6f0f8;
+    color: #106f8c;
+}
+
+.status-resolved {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-closed {
+    background-color: #e2e6ea;
+    color: #383d41;
+}
+
+/* Prioridades */
+.priority-high {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.priority-medium {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.priority-low {
+    background-color: #d1ecf1;
+    color: #0c5460;
+}
+
+/* Categorías */
+.category-badge {
+    background-color: #e6f0f8;
+    color: #106f8c;
+    min-width: auto;
+    padding: 4px 10px;
+}
+
+/* ================================================================= */
+/* 6. ESTILOS DE BOTONES DE ACCIÓN                                   */
+/* ================================================================= */
+
+.action-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-action {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+}
+
+.btn-view {
+    background-color: #e6f0f8;
+    color: #106f8c;
+    border: 1px solid #bbd6ee;
+}
+
+.btn-view:hover {
+    background-color: #d1e4f3;
+}
+
+.btn-delete {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.btn-delete:hover {
+    background-color: #f1b8be;
+}
+
+/* ================================================================= */
+/* 7. ESTILOS DE MODAL (Consistentes con appointments)               */
+/* ================================================================= */
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 5% auto;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 700px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 25px;
+    background-color: #106f8c;
+    color: white;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: white;
+    font-size: 28px;
+    font-weight: bold;
+    transition: opacity 0.2s;
+}
+
+.modal-close:hover {
+    opacity: 0.8;
+}
+
+.modal-body {
+    padding: 25px;
+    line-height: 1.6;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+/* ================================================================= */
+/* 8. ESTILOS DE DETALLES DEL TICKET                                 */
+/* ================================================================= */
+
+.ticket-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.detail-section {
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.detail-section:last-child {
+    border-bottom: none;
+}
+
+.detail-section h3 {
+    color: #17a1a4;
+    border-bottom: 2px solid #e6f0f8;
+    padding-bottom: 8px;
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px dotted #eee;
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+.detail-label {
+    font-weight: 600;
+    color: #555;
+    min-width: 120px;
+}
+
+.detail-value {
+    text-align: right;
+    flex-grow: 1;
+}
+
+.message-box, 
+.response-box {
+    background-color: #f1f8ff;
+    border-left: 4px solid #106f8c;
+    padding: 15px;
+    border-radius: 6px;
+    white-space: pre-wrap;
+    line-height: 1.5;
+}
+
+.response-box {
+    background-color: #f0f8f0;
+    border-left-color: #28a745;
+}
+
+/* ================================================================= */
+/* 9. ESTILOS DE FORMULARIO DE RESPUESTA                             */
+/* ================================================================= */
+
+.response-form {
+    margin-top: 15px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #555;
+}
+
+.form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    min-height: 120px;
+    resize: vertical;
+    font-family: inherit;
+    font-size: 0.95rem;
+}
+
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    background-color: white;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 25px;
+}
+
+.btn-cancel, 
+.btn-submit {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-cancel {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-cancel:hover {
+    background-color: #5a6268;
+}
+
+.btn-submit {
+    background-color: #106f8c;
+    color: white;
+}
+
+.btn-submit:hover {
+    background-color: #0d5a70;
+}
+
+/* ================================================================= */
+/* 10. ESTADO VACÍO Y LOADING                                        */
+/* ================================================================= */
+
+.empty-state {
+    text-align: center;
+    padding: 50px 20px;
+    color: #aaa;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.empty-state svg {
+    margin-bottom: 15px;
+    opacity: 0.5;
+}
+
+.empty-state p {
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+.loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 50px;
+    color: #6c757d;
+}
+
+.spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #106f8c;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin-bottom: 15px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ================================================================= */
+/* 11. RESPONSIVE DESIGN                                             */
+/* ================================================================= */
+
+@media (max-width: 768px) {
+    .filters-section {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .filter-group {
+        width: 100%;
+    }
+    
+    .filter-select {
+        width: 100%;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+    }
+    
+    .modal-content {
+        width: 95%;
+        margin: 10% auto;
+    }
+    
+    .detail-row {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .detail-value {
+        text-align: left;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+}

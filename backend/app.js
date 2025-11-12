@@ -4,42 +4,29 @@ import adminRegisterRoutes from './routes/adminRegister.js';
 import adminLoginRoutes from './routes/adminLogin.js';
 import psychologistRoutes from './routes/psychologistRoutes.js';
 import adminArticleRoutes from './routes/adminArticleRoutes.js';
+import adminPatientRoutes from './routes/adminPatientRoutes.js';
+import adminAppointmentRoutes from './routes/adminAppointmentRoutes.js';
+import adminStripeRouter from './routes/adminStripeRoutes.js';
+import statsRoutes from './routes/statsRoutes.js';
+import adminSupportRoutes from './routes/adminSupportRoutes.js';
+import bankInfoRoutes from './routes/bankInfoRoutes.js';
+import adminPaymentRoutes from './routes/adminPaymentRoutes.js'; // ⭐ NUEVO
 
 
 const app = express();
-
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-  );
-  res.header("Access-Control-Allow-Credentials", "true");
-
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(200);
-  }
-
-  next();
-});
 
 const corsOptions = {
   origin: true,
   credentials: true,
   optionsSuccessStatus: 200,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: [
-    "Content-Type",
-    "Authorization",
-    "Origin",
-    "X-Requested-With",
-    "Accept",
-  ],
+  methods: ['GET', 'POST', 'PUT','PATCH','DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'X-Requested-With', 'Accept']
 };
 
 app.use(cors(corsOptions));
+
 app.use(express.json());
+
 app.use((req, res, next) => {
   if (req.method !== "OPTIONS") {
     console.log(
@@ -49,36 +36,60 @@ app.use((req, res, next) => {
   next();
 });
 
+// ==================== RUTAS PÚBLICAS ====================
 app.get("/", (req, res) => {
   res.send("Aurora Backend funcionando en modo DESARROLLO!");
 });
 
-// Rutas de administradores
-app.use("/api/admin", adminRegisterRoutes);
-
-// Rutas de login
-app.use("/api/login", adminLoginRoutes);
-
-// Rutas de configuración de admin
-app.use("/api/setup", adminSetupRoutes);
-
-// Rutas de psicólogos
-app.use("/api", psychologistRoutes);
-
-// Rutas de administración de artículos 
-app.use('/api/admin', adminArticleRoutes);
-
-app.use((req, res) => {
-  console.log(`Ruta no encontrada: ${req.method} ${req.originalUrl}`);
-  res
-    .status(404)
-    .json({ error: `Ruta ${req.method} ${req.originalUrl} no encontrada` });
+app.get("/api/health", (req, res) => {
+  res.json({
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development',
+    uptime: process.uptime()
+  });
 });
 
+// ==================== RUTAS DE AUTENTICACIÓN ====================
+app.use('/api/admin', adminRegisterRoutes);
+app.use('/api/login', adminLoginRoutes);
+
+// ==================== RUTAS DE PSICÓLOGOS ====================
+app.use('/api', psychologistRoutes);
+
+// ==================== RUTAS DE ADMINISTRACIÓN ====================
+app.use('/api/admin', adminArticleRoutes);
+app.use('/api/admin', adminPatientRoutes); 
+app.use('/api/admin', adminAppointmentRoutes);
+app.use('/api/admin', adminPaymentRoutes); // ⭐ NUEVO - Gestión de pagos a psicólogos
+
+// Información bancaria de psicólogos
+app.use('/api', bankInfoRoutes);
+
+// Reembolsos y operaciones avanzadas con Stripe
+app.use('/api/admin/stripe', adminStripeRouter);
+
+// ==================== RUTAS DE ESTADÍSTICAS Y SOPORTE ====================
+app.use('/api/stats', statsRoutes); 
+app.use('/api/support', adminSupportRoutes);
+
+// ==================== MANEJO DE RUTAS NO ENCONTRADAS ====================
+app.use((req, res) => {
+  console.log(`Ruta no encontrada: ${req.method} ${req.originalUrl}`);
+  res.status(404).json({ 
+    error: `Ruta ${req.method} ${req.originalUrl} no encontrada`,
+    timestamp: new Date().toISOString()
+  });
+
+});
+
+// ==================== MANEJO GLOBAL DE ERRORES ====================
 app.use((error, req, res, next) => {
   console.error("Error global capturado:", error);
   res.status(error.status || 500).json({
     error: error.message || "Internal server error",
+    timestamp: new Date().toISOString(),
+    path: req.originalUrl
   });
 });
 
