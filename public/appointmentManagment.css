@@ -1,0 +1,622 @@
+/* ================================================================= */
+/* 1. ESTILOS BASE Y LAYOUT GENERAL                                  */
+/* ================================================================= */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+  background-color: #f5f7fa;
+  color: #333;
+  line-height: 1.6;
+}
+
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* Sidebar Styles */
+.sidebar {
+  position: fixed;
+  width: 250px;
+  height: 100vh;
+  background: linear-gradient(135deg, #106f8c 0%, #17a1a4 100%);
+  color: white;
+  display: flex;
+  overflow-y: auto;
+  flex-direction: column;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+}
+
+.sidebar-brand {
+  padding: 25px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 20px 0;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.85);
+  transition: background-color 0.2s, color 0.2s;
+  border-left: 4px solid transparent;
+}
+
+.nav-item:hover, .nav-item.active {
+  background-color: rgba(0, 0, 0, 0.15);
+  color: white;
+  border-left-color: white;
+}
+
+.nav-item.active {
+    font-weight: 600;
+}
+
+.nav-item .icon svg {
+  fill: currentColor;
+  width: 20px;
+  height: 20px;
+}
+
+/* Main Content and Header */
+.main {
+  margin-left: 250px;  /* ← CRÍTICO: Añadir esta línea */
+  flex: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-header {
+  position: sticky;
+  padding: 30px 40px;
+  background-color: white;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.main-header h1 {
+  font-size: 1.8rem;
+  color: #106f8c;
+}
+
+.main-header .subtitle {
+  color: #6c757d;
+  font-size: 0.95rem;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+    text-align: right;
+}
+
+/* ================================================================= */
+/* 2. ESTILOS DE LA CUADRÍCULA DE ACCIONES (Dashboard)             */
+/* ================================================================= */
+
+.content {
+      flex: 1;
+      padding: 30px;
+      overflow-y: auto;
+    }
+
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 30px;
+  margin-top: 30px;
+}
+
+.action-card {
+  background-color: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05); 
+  position: relative;
+  transition: transform 0.2s;
+}
+
+.action-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.action-card h3 {
+  font-size: 1.4rem;
+  color: #106f8c;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.action-icon {
+  width: 50px;
+  height: 50px;
+  background-color: #e6f0f8;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-icon svg {
+  fill: #106f8c;
+  width: 24px;
+  height: 24px;
+}
+
+.action-card .badge {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  padding: 5px 10px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-radius: 4px;
+}
+
+/* ================================================================= */
+/* 3. ESTILOS DE TABLA (Diseño Final)                                */
+/* ================================================================= */
+
+.section-title {
+  font-size: 1.6rem;
+  color: #106f8c;
+  margin-bottom: 25px;
+  border-bottom: 2px solid #e9ecef;
+  padding-bottom: 10px;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background-color: white;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  border-radius: 10px; /* Bordes Redondeados */
+  overflow: hidden; 
+}
+
+.data-table thead tr {
+  background-color: #f0f4f7; 
+  color: #333;
+  text-align: left;
+}
+
+.data-table th, .data-table td {
+  padding: 18px 15px; 
+  border-bottom: 1px solid #e9ecef;
+}
+
+.data-table th {
+  font-weight: 700; 
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  color: #5a6470; 
+}
+
+.data-table tbody tr:hover {
+  background-color: #f1f8ff; 
+}
+
+/* ================================================================= */
+/* 4. ESTILOS DE ESTADOS (Español)                                   */
+/* ================================================================= */
+
+/* Estado de Éxito / Suscrito (Premium) / Cita Completada (Verde) */
+.status-subscribed, .badge.success {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.85em;
+  font-weight: 500;
+  background-color: #d4edda; 
+  color: #155724; 
+  border: 1px solid #c3e6cb;
+}
+
+/* Estado de Peligro / Cancelada (Rojo) - Usamos status-cancelled */
+.status-unsubscribed, .status-cancelled {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.85em;
+  font-weight: 500;
+  background-color: #f8d7da; 
+  color: #721c24; 
+  border: 1px solid #f5c6cb;
+}
+
+/* Estado de Advertencia / Pendiente (Amarillo) - Usamos status-pending */
+.status-pending, .badge.warning {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85em;
+    font-weight: 500;
+    background-color: #fff3cd; 
+    color: #856404; 
+    border: 1px solid #ffeeba;
+}
+
+/* 🆕 NUEVO: Estado CONFIRMED (Azul) */
+.status-confirmed {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85em;
+    font-weight: 500;
+    background-color: #cce5ff; /* Azul muy claro */
+    color: #004085; /* Azul oscuro */
+    border: 1px solid #b8daff;
+}
+
+/* 🆕 NUEVO: Estado IN PROGRESS (Cian) */
+.status-in-progress {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85em;
+    font-weight: 500;
+    background-color: #d1ecf1; /* Cian claro */
+    color: #0c5460; /* Cian oscuro */
+    border: 1px solid #bee5eb;
+}
+
+/* 🆕 NUEVO: Estado RATED (Gris) */
+.status-rated {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85em;
+    font-weight: 500;
+    background-color: #e2e6ea; /* Gris claro */
+    color: #383d41; /* Gris oscuro */
+    border: 1px solid #d6d8db;
+}
+
+/* ================================================================= */
+/* 5. ESTILOS DE BOTONES Y CONTROLES                                 */
+/* ================================================================= */
+
+.btn {
+    cursor: pointer;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: background-color 0.2s, box-shadow 0.2s;
+}
+
+.btn.logout {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-secondary {
+    background-color: #f1f8ff;
+    color: #106f8c;
+    border: 1px solid #bbd6ee;
+}
+
+.action-btn {
+    width: 100%;
+    text-align: center;
+    padding: 12px;
+    margin-top: 15px;
+    font-weight: 600;
+    border-radius: 8px;
+    text-decoration: none;
+    display: block;
+    transition: background-color 0.2s, box-shadow 0.2s;
+}
+
+.action-btn.primary {
+    background-color: #106f8c;
+    color: white;
+}
+
+.action-btn.secondary {
+    background-color: #e6f0f8;
+    color: #106f8c;
+    border: 1px solid #bbd6ee;
+}
+
+.action-btn.warning {
+    background-color: #ffc107;
+    color: #212529;
+    border: 1px solid #ffcd39;
+}
+
+.controls-bar {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.filter-select {
+    padding: 10px 15px;
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+    background-color: #ffffff;
+}
+
+/* ================================================================= */
+/* 7. ESTILOS DE MODALES Y DETALLES DE CITA                          */
+/* ================================================================= */
+
+.modal {
+    /* CORRECCIÓN 1: Centrar el modal en la pantalla */
+    margin: auto; 
+    border: none;
+    border-radius: 12px;
+    padding: 0;
+    width: 90%;
+    max-width: 600px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    background-color: white;
+}
+
+.modal::backdrop {
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 999;
+}
+.swal2-container {
+    z-index: 10000 !important; /* SweetAlert siempre encima */
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 25px;
+    background-color: #106f8c; /* Color primario */
+    color: white;
+    border-radius: 12px 12px 0 0;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: white;
+    padding: 5px;
+    transition: opacity 0.2s;
+}
+
+.close-btn:hover {
+    opacity: 0.8;
+}
+
+.modal-body {
+    padding: 25px;
+    line-height: 1.6;
+}
+
+.modal-footer {
+    padding: 15px 25px;
+    text-align: right;
+    border-top: 1px solid #eee;
+    background-color: #f9f9f9;
+    border-radius: 0 0 12px 12px;
+}
+
+.detail-group {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px dotted #eee;
+}
+
+.detail-group label {
+    font-weight: 600;
+    color: #555;
+    min-width: 150px;
+}
+
+.detail-group span {
+    text-align: right;
+    flex-grow: 1;
+}
+
+.info-highlight {
+    font-weight: 700;
+    color: #106f8c; /* Resaltar fecha/hora */
+}
+
+.notes-block {
+    background-color: #f1f8ff;
+    border-left: 4px solid #106f8c;
+    padding: 15px;
+    margin-top: 10px;
+    border-radius: 6px;
+    white-space: pre-wrap; /* Para respetar saltos de línea en las notas */
+}
+
+h4 {
+    color: #17a1a4;
+    border-bottom: 2px solid #e6f0f8;
+    padding-bottom: 5px;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+}
+
+.mt-20 {
+    margin-top: 20px;
+}
+
+/* Estilos para la calificación con estrellas */
+.rating-stars {
+    position: relative;
+    display: inline-block;
+    color: #ccc; /* Estrellas de fondo grises */
+    font-size: 1.2rem;
+    line-height: 1;
+    letter-spacing: 2px;
+}
+.rating-stars::before {
+    content: '★★★★★';
+    display: block;
+}
+.rating-stars span {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    overflow: hidden;
+    color: #ffc107; /* Estrellas de primer plano amarillas */
+}
+.rating-stars span span {
+    display: block;
+    width: max-content;
+}
+
+/* ================================================================= */
+/* 8. ESTILOS DE ETIQUETAS DE ESTADO (Status Pills)                  */
+/* ================================================================= */
+
+.status-pill {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-align: center;
+    min-width: 90px;
+}
+
+.status-pending {
+    background-color: #fff3cd; /* Amarillo claro */
+    color: #856404;
+}
+
+.status-confirmed {
+    background-color: #d1ecf1; /* Azul claro */
+    color: #0c5460;
+}
+
+/* CORRECCIÓN 2: Color para 'En Curso' */
+.status-in-progress {
+    background-color: #e6f0f8; /* Aurora muy claro */
+    color: #106f8c; /* Aurora fuerte */
+}
+
+/* CORRECCIÓN 2: Color para 'Completada' */
+.status-completed {
+    background-color: #d4edda; /* Verde claro */
+    color: #155724;
+}
+
+.status-rated {
+    background-color: #fce4ec; /* Rosa/Morado claro */
+    color: #ad1457;
+}
+
+.status-cancelled {
+    background-color: #f8d7da; /* Rojo claro */
+    color: #721c24;
+}
+
+.status-default {
+    background-color: #e9ecef;
+    color: #333;
+}
+
+/* ================================================================= */
+/* ESTILOS DE ESTADO Y ALERTA DE REEMBOLSO                            */
+/* ================================================================= */
+
+/* Nuevo Estado: Reembolsada */
+.status-refunded {
+    background-color: #bbd6ee; /* Gris-Azul claro */
+    color: #0c5460;
+}
+
+/* Ícono de alerta en la tabla */
+.refund-alert-icon {
+    font-size: 1.2em;
+    cursor: help;
+    margin-left: 5px;
+    vertical-align: middle;
+    color: #ffc107; /* Amarillo de advertencia */
+}
+
+/* Botón de reembolso en el modal */
+.btn-refund {
+    background-color: #dc3545; /* Rojo de peligro */
+    color: white;
+    font-weight: 600;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.btn-refund:hover {
+    background-color: #c82333;
+}
+
+.refund-warning {
+    color: #856404;
+    background-color: #fff3cd;
+    border: 1px solid #ffeeba;
+    padding: 10px;
+    border-radius: 6px;
+    margin-top: 15px;
+    font-weight: 500;
+}
+
+.refund-msg {
+    color: #155724;
+    font-weight: 600;
+    margin-top: 20px;
+    text-align: center;
+}
+/* appointmentManagment.css (Recomendación a añadir) */
+
+.status-pill {
+    /* Asegura que el texto y el icono se alineen */
+    display: inline-flex; 
+    align-items: center;
+    gap: 4px; /* Pequeño espacio entre el texto y el icono */
+}
+
+.refund-alert {
+    /* Estilo opcional para el icono si usas una imagen o quieres un color específico */
+    font-size: 1.1em; /* Un poco más grande para destacar */
+    line-height: 1;
+    color: #ffc107; /* Amarillo de advertencia (opcional si usas un emoji) */
+}

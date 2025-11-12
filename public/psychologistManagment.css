@@ -14,14 +14,18 @@ body {
 .app-shell {
   display: flex;
   min-height: 100vh;
+  position: relative;
 }
 
 /* Sidebar Styles */
 .sidebar {
+  position: fixed;
   width: 250px;
+  height: 100vh;
   background: linear-gradient(135deg, #106f8c 0%, #17a1a4 100%);
   color: white;
   display: flex;
+  overflow-y: auto;
   flex-direction: column;
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
   z-index: 100;
@@ -80,10 +84,11 @@ body {
 
 /* Main Content Styles */
 .main {
+  margin-left: 250px;  /* ← CRÍTICO: Añadir esta línea */
   flex: 1;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  overflow: auto;
 }
 
 .main-header {

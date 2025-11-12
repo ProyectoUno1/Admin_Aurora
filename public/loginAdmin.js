@@ -6,81 +6,79 @@ import { auth, BACKEND_URL } from './firebase-config.js';
     const passwordInput = document.getElementById('password');
     const loginBtn = document.getElementById('loginBtn');
     const loading = document.getElementById('loading');
-    const messageElement = document.getElementById('message');
-
+    
     function showMessage(text, isError = false) {
-      messageElement.textContent = text;
-      messageElement.className = `message ${isError ? 'message-error' : 'message-success'}`;
-      messageElement.style.display = 'block';
+      const icon = isError ? 'error' : 'success';
+      const title = isError ? 'Error de Acceso' : 'Éxito';
+      
+      Swal.fire({
+          icon: icon,
+          title: title,
+          text: text,
+          showConfirmButton: isError, 
+          timer: isError ? null : 3000, 
+          confirmButtonColor: isError ? '#d33' : '#3085d6'
+      });
     }
 
-    function hideMessage() {
-      messageElement.style.display = 'none';
-    }
-
+ 
+    
     function showLoading(show) {
       loading.style.display = show ? 'block' : 'none';
       loginBtn.disabled = show;
       loginBtn.textContent = show ? 'Iniciando sesión...' : 'Iniciar Sesión';
     }
 
-    // Verificar si el usuario ya está logueado
+
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        console.log('Usuario ya autenticado:', user.email);
-        // redirigir a dashboard
       }
     });
 
-    // Manejar el login
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      
       const email = emailInput.value.trim();
       const password = passwordInput.value;
 
+      showLoading(true);
+
       if (!email || !password) {
-        showMessage('Por favor, completa todos los campos.', true);
+        showMessage('Por favor, ingresa email y contraseña.', true);
+        showLoading(false);
         return;
       }
 
-      showLoading(true);
-      hideMessage();
-
       try {
-        console.log('Intentando login con Firebase...');
-        
         // 1. Autenticar con Firebase
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
-        
-        console.log('Login exitoso en Firebase:', user.email);
 
-        // 2. Obtener token de Firebase
-        const idToken = await user.getIdToken();
-        
-        // 3. Verificar que es admin en el backend
-        console.log(' Verificando privilegios de admin...');
-        
+        // 2. Obtener el ID Token
+        const idToken = await user.getIdToken(true); 
+
+        // 3. Verificar privilegios de admin con el backend
         const response = await fetch(`${BACKEND_URL}/api/login/verify`, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${idToken}`
-          }
+            'Authorization': `Bearer ${idToken}`,
+            'Content-Type': 'application/json'
+          },
         });
 
+        const responseData = await response.json();
+
         if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Error del servidor');
+          // Si el backend deniega el acceso (no admin), forzar logout de Firebase
+          await auth.signOut();
+          const error = responseData.error || responseData.message || 'Acceso denegado. No tienes privilegios de administrador';
+          throw new Error(error);
         }
 
-        const data = await response.json();
-        console.log('Verificación de admin exitosa:', data);
+        console.log('Verificación admin exitosa:', responseData);
 
         // 4. Guardar token en localStorage
         localStorage.setItem('firebaseIdToken', idToken);
-        localStorage.setItem('adminData', JSON.stringify(data.admin));
+        localStorage.setItem('adminData', JSON.stringify(responseData.admin));
 
         showMessage('¡Login exitoso! Redirigiendo...', false);
 
@@ -94,6 +92,7 @@ import { auth, BACKEND_URL } from './firebase-config.js';
         
         let errorMessage = 'Error desconocido';
         
+        // Manejo de errores de Firebase
         if (error.code === 'auth/user-not-found') {
           errorMessage = 'Usuario no encontrado';
         } else if (error.code === 'auth/wrong-password') {
@@ -102,7 +101,8 @@ import { auth, BACKEND_URL } from './firebase-config.js';
           errorMessage = 'Credenciales incorrectas';
         } else if (error.code === 'auth/too-many-requests') {
           errorMessage = 'Demasiados intentos fallidos. Intenta más tarde';
-        } else if (error.message.includes('Access denied')) {
+        // Manejo de errores de Backend
+        } else if (error.message.includes('Access denied') || error.message.includes('Acceso denegado')) {
           errorMessage = 'Acceso denegado. No tienes privilegios de administrador';
         } else if (error.message.includes('Failed to fetch')) {
           errorMessage = 'No se puede conectar al servidor';
@@ -111,7 +111,7 @@ import { auth, BACKEND_URL } from './firebase-config.js';
         }
         
         showMessage(errorMessage, true);
-      } finally {
         showLoading(false);
-      }
+
+      } 
     });
