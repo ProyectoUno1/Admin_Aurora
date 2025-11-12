@@ -12,10 +12,11 @@ import adminSupportRoutes from './routes/adminSupportRoutes.js';
 import bankInfoRoutes from './routes/bankInfoRoutes.js';
 import adminPaymentRoutes from './routes/adminPaymentRoutes.js'; // ⭐ NUEVO
 
+
 const app = express();
 
 const corsOptions = {
-  origin: true, 
+  origin: true,
   credentials: true,
   optionsSuccessStatus: 200,
   methods: ['GET', 'POST', 'PUT','PATCH','DELETE', 'OPTIONS'],
@@ -27,8 +28,10 @@ app.use(cors(corsOptions));
 app.use(express.json());
 
 app.use((req, res, next) => {
-  if (req.method !== 'OPTIONS') { 
-    console.log(`${req.method} ${req.path} - Origin: ${req.get('Origin') || 'none'}`);
+  if (req.method !== "OPTIONS") {
+    console.log(
+      `${req.method} ${req.path} - Origin: ${req.get("Origin") || "none"}`
+    );
   }
   next();
 });
@@ -77,6 +80,7 @@ app.use((req, res) => {
     error: `Ruta ${req.method} ${req.originalUrl} no encontrada`,
     timestamp: new Date().toISOString()
   });
+
 });
 
 // ==================== MANEJO GLOBAL DE ERRORES ====================
