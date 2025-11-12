@@ -171,49 +171,31 @@ async function loadArticleStats(idToken) {
 }
 
 // Cargar estadísticas de sesiones (appointments)
-// Cargar estadísticas de sesiones (appointments)
-// Cargar estadísticas de sesiones (appointments)
-// Cargar estadísticas de sesiones (appointments)
 async function loadAppointmentStats(idToken) {
   try {
-    // Usamos el endpoint que lista las citas, que es más probable que funcione.
-    const response = await fetch(`${BACKEND_URL}/api/admin/appointments`, {
+    // LLAMADA AL ENDPOINT CORREGIDO
+    const response = await fetch(`${BACKEND_URL}/api/admin/appointments/overview`, {
       headers: {
         'Authorization': `Bearer ${idToken}`
       }
     });
 
     if (response.ok) {
-      const data = await response.json();
+      const stats = await response.json();
       
-      // Asumimos que la respuesta tiene una clave 'appointments' que es un array
-      const appointments = data.appointments || []; 
+      const total = stats.total || 0;
+      const completed = stats.completed || 0;
+      const pending = stats.pending || 0; 
       
-      let totalAppointments = appointments.length;
-      let completedAppointments = 0;
-      let pendingAppointments = 0;
-      
-      // Contar estados de citas directamente en el frontend
-      appointments.forEach(appointment => {
-          // Ajusta las claves de estado según las que use tu backend (ej: 'status')
-          const status = appointment.status ? appointment.status.toUpperCase() : 'PENDING';
+      document.getElementById('totalAppointments').textContent = total;
+      document.getElementById('completedAppointments').textContent = completed;
+      document.getElementById('pendingAppointments').textContent = pending;
 
-          if (status === 'COMPLETED' || status === 'FINISHED') {
-              completedAppointments++;
-          } else if (status === 'PENDING' || status === 'SCHEDULED' || status === 'UPCOMING') {
-              pendingAppointments++;
-          }
-          // El total ya está cubierto por el largo del array
-      });
+      const pendingAppointmentsBadge = document.getElementById('pendingAppointmentsBadge'); 
+      if (pendingAppointmentsBadge) {
+        pendingAppointmentsBadge.textContent = `${pending} pendientes`;
+      }
       
-      // Si el total de citas viene como una propiedad de la respuesta, úsala.
-      totalAppointments = data.totalAppointments || appointments.length;
-
-      // Actualizar las tarjetas del dashboard
-      document.getElementById('totalAppointments').textContent = totalAppointments;
-      document.getElementById('completedAppointments').textContent = completedAppointments;
-      document.getElementById('pendingAppointments').textContent = pendingAppointments;
-
     } else {
       console.error('Error cargando estadísticas de sesiones. Código:', response.status);
       document.getElementById('totalAppointments').textContent = 'Error';
