@@ -55,13 +55,13 @@ router.get('/appointments', verifyAdminToken, async (req, res) => {
 
                 // Datos del paciente
                 patientId: data.patientId,
-                patientName: patientDoc.exists ? (patientDoc.data().username || 'N/A') : 'Paciente Eliminado',
-                patientEmail: patientDoc.exists ? (patientDoc.data().email || 'N/A') : 'N/A',
+                patientName: (patientDoc && patientDoc.exists) ? (patientDoc.data().username || 'N/A') : 'Paciente Eliminado',
+                patientEmail: (patientDoc && patientDoc.exists) ? (patientDoc.data().email || 'N/A') : 'N/A',
 
                 // Datos del psicólogo
                 psychologistId: data.psychologistId,
-                psychologistName: psychologistDoc.exists ? (psychologistDoc.data().fullName || 'N/A') : 'Psicólogo Eliminado',
-                psychologistEmail: psychologistDoc.exists ? (psychologistDoc.data().email || 'N/A') : 'N/A',
+                psychologistName: (psychologistDoc && psychologistDoc.exists) ? (psychologistDoc.data().fullName || 'N/A') : 'Psicólogo Eliminado',
+                psychologistEmail: (psychologistDoc && psychologistDoc.exists) ? (psychologistDoc.data().email || 'N/A') : 'N/A',
             };
 
             appointments.push(appointment);
