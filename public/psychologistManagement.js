@@ -1,5 +1,6 @@
 import { auth, BACKEND_URL } from './firebase-config.js';
 import { onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+// NOTA: Se asume que SweetAlert2 (Swal) está cargado en el HTML.
 
 let currentPsychologists = [];
 let filteredPsychologists = [];
@@ -7,11 +8,11 @@ let currentPsychologistId = null;
 
 // Mapeo de estados del backend a texto y clase CSS para el frontend
 const statusMap = {
-  PENDING: { text: 'Pendiente', colorClass: 'status-pending' },
-  APPROVED: { text: 'Activo', colorClass: 'status-active' }, 
-  ACTIVE: { text: 'Activo', colorClass: 'status-active' }, 
-  REJECTED: { text: 'Rechazado', colorClass: 'status-rejected' },
-  INACTIVE: { text: 'Inactivo', colorClass: 'status-inactive' },
+  PENDING: { text: 'Pendiente', colorClass: 'status-pendiente' },
+  APPROVED: { text: 'Activo', colorClass: 'status-activo' }, 
+  ACTIVE: { text: 'Activo', colorClass: 'status-activo' }, 
+  REJECTED: { text: 'Rechazado', colorClass: 'status-rechazado' },
+  INACTIVE: { text: 'Inactivo', colorClass: 'status-inactivo' },
   DEFAULT: { text: 'Desconocido', colorClass: 'status-unknown' } 
 };
 
@@ -45,7 +46,13 @@ onAuthStateChanged(auth, async (user) => {
     
   } catch (error) {
     console.error('Error verificando admin:', error);
-    alert('Error: No tienes privilegios de administrador');
+    // REEMPLAZO DE alert()
+    await Swal.fire({
+      icon: 'error',
+      title: 'Acceso Denegado',
+      text: 'Error: No tienes privilegios de administrador',
+      confirmButtonColor: '#106f8c',
+    });
     window.location.href = 'loginAdmin.html';
   }
 });
@@ -95,7 +102,13 @@ async function loadPsychologists() {
     }
   } catch (error) {
     console.error('Error cargando psicólogos:', error);
-    alert('Error cargando la lista de psicólogos');
+    // REEMPLAZO DE alert()
+    await Swal.fire({
+      icon: 'error',
+      title: 'Fallo de Carga ',
+      text: 'Error cargando la lista de psicólogos: ' + (error.message || 'Error desconocido'),
+      confirmButtonColor: '#106f8c',
+    });
   } finally {
     document.getElementById('loading').style.display = 'none';
   }
@@ -117,7 +130,8 @@ function mapPsychologistData(psychologist) {
     adminNotes: psychologist.adminNotes || '',
     validatedAt: psychologist.validatedAt || '',
     lastUpdated: psychologist.lastUpdated || '',
-    adminUid: psychologist.adminUid || ''
+    adminUid: psychologist.adminUid || '',
+    price: psychologist.price || psychologist.sessionPrice || 0,
   };
 }
 
@@ -136,7 +150,6 @@ function renderPsychologists() {
   noResults.style.display = 'none';
 
   grid.innerHTML = filteredPsychologists.map(psychologistRaw => {
-    console.log('Estado recibido del backend:', psychologistRaw.status);
     const psychologist = mapPsychologistData(psychologistRaw);
     
     // Obtener la información del estado del mapa
@@ -207,7 +220,7 @@ async function showPsychologistDetails(psychologistId) {
     });
 
     if (!response.ok) {
-      throw new Error('No se pudo cargar la información del psicólogo.');
+      throw new Error('No se pudo cargar la información del psicólogo. Código: ' + response.status);
     }
 
     const psychologist = await response.json();
@@ -230,13 +243,17 @@ async function showPsychologistDetails(psychologistId) {
     document.getElementById('modalSpecialty').textContent = psychologist.specialty || 'No especificado';
     document.getElementById('modalDescription').textContent = psychologist.description || 'No especificado';
     document.getElementById('modalIsAvailable').textContent = psychologist.isAvailable ? 'Sí' : 'No';
-
+    document.getElementById('modalPrice').textContent = psychologist.price ? `$${psychologist.price}` : 'No especificado';
+    
     const educationList = document.getElementById('modalEducationList');
     educationList.innerHTML = psychologist.education?.length ? psychologist.education.map(edu => `<li>${edu.institution || edu}</li>`).join('') : '<li>No especificado</li>';
     const certificationsList = document.getElementById('modalCertificationsList');
     certificationsList.innerHTML = psychologist.certifications?.length ? psychologist.certifications.map(cert => `<li>${cert}</li>`).join('') : '<li>No especificado</li>';
     const scheduleList = document.getElementById('modalScheduleList');
     scheduleList.innerHTML = psychologist.schedule ? Object.entries(psychologist.schedule).filter(([, val]) => val.available).map(([day, val]) => `<li>${day}: ${val.startTime} - ${val.endTime}</li>`).join('') : '<li>Horario no especificado</li>';
+
+    // Configurar la edición del precio
+    setupPriceEditing(psychologist);
 
     // Configuración dinámica de botones en el modal
     const validateBtn = document.getElementById('validateBtn');
@@ -272,8 +289,104 @@ async function showPsychologistDetails(psychologistId) {
 
   } catch (error) {
     console.error('Error al mostrar los detalles:', error);
-    alert(error.message);
+    // REEMPLAZO DE alert()
+    await Swal.fire({
+      icon: 'error',
+      title: 'Fallo al Cargar Detalles',
+      text: error.message,
+      confirmButtonColor: '#106f8c',
+    });
   }
+}
+
+// Función para configurar la edición del precio
+function setupPriceEditing(psychologist) {
+  const editPriceBtn = document.getElementById('editPriceBtn');
+  const priceEditSection = document.getElementById('priceEditSection');
+  const priceInput = document.getElementById('priceInput');
+  const savePriceBtn = document.getElementById('savePriceBtn');
+  const cancelPriceBtn = document.getElementById('cancelPriceBtn');
+  
+  // Limpiar event listeners anteriores
+  editPriceBtn.onclick = null;
+  savePriceBtn.onclick = null;
+  cancelPriceBtn.onclick = null;
+  
+  // Mostrar/ocultar sección de edición
+  editPriceBtn.onclick = () => {
+    priceInput.value = psychologist.price || '';
+    priceEditSection.style.display = 'block';
+    editPriceBtn.style.display = 'none';
+  };
+  
+  cancelPriceBtn.onclick = () => {
+    priceEditSection.style.display = 'none';
+    editPriceBtn.style.display = 'inline-block';
+    priceInput.value = psychologist.price || '';
+  };
+  
+  savePriceBtn.onclick = async () => {
+    const newPrice = parseFloat(priceInput.value);
+    
+    if (isNaN(newPrice) || newPrice < 0) {
+      // REEMPLAZO DE alert()
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Precio Inválido',
+        text: 'Por favor ingresa un precio válido (número mayor o igual a 0).',
+        confirmButtonColor: '#106f8c',
+      });
+      return;
+    }
+    
+    try {
+      await updatePsychologistPrice(psychologist.id, newPrice);
+      priceEditSection.style.display = 'none';
+      editPriceBtn.style.display = 'inline-block';
+      
+      // Actualizar el precio mostrado
+      document.getElementById('modalPrice').textContent = `$${newPrice}`;
+      
+      // Actualizar el objeto psychologist localmente
+      psychologist.price = newPrice;
+      
+      // REEMPLAZO DE alert()
+      await Swal.fire({
+        icon: 'success',
+        title: '¡Éxito!',
+        text: 'Precio actualizado correctamente.',
+        confirmButtonColor: '#106f8c',
+      });
+    } catch (error) {
+      // REEMPLAZO DE alert()
+      await Swal.fire({
+        icon: 'error',
+        title: 'Fallo al Actualizar Precio',
+        text: 'Error al actualizar el precio: ' + error.message,
+        confirmButtonColor: '#106f8c',
+      });
+    }
+  };
+}
+
+// Función para actualizar el precio del psicólogo
+async function updatePsychologistPrice(psychologistId, price) {
+  const idToken = await auth.currentUser.getIdToken();
+  const response = await fetch(`${BACKEND_URL}/api/psychologists/${psychologistId}/price`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${idToken}`
+    },
+    body: JSON.stringify({ price })
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || 'Error al actualizar el precio');
+  }
+  
+  return await response.json();
 }
 
 // Función para cerrar el modal de detalles principal
@@ -299,12 +412,32 @@ function showRejectionModalForId(id) {
 // Función para actualizar el estado del psicólogo
 async function updatePsychologistStatus(psychologistId, status, adminNotes) {
   if (status === 'REJECTED' && !adminNotes.trim()) {
-    alert('Por favor, ingresa una razón para rechazar al psicólogo.');
+    // REEMPLAZO DE alert()
+    await Swal.fire({
+      icon: 'warning',
+      title: 'Razón Requerida',
+      text: 'Por favor, ingresa una razón para rechazar al psicólogo.',
+      confirmButtonColor: '#106f8c',
+    });
     return;
   }
   
   const statusText = statusMap[status]?.text || statusMap.DEFAULT.text;
-  if (!confirm(`¿Estás seguro de que quieres cambiar el estado a '${statusText}'?`)) {
+  
+  // REEMPLAZO DE confirm() por Swal.fire
+  const result = await Swal.fire({
+    title: `¿Cambiar estado a ${statusText}?`,
+    text: `¿Estás seguro de que quieres cambiar el estado del psicólogo a '${statusText}'?`,
+    icon: 'question',
+    showCancelButton: true,
+    // Color dinámico para la confirmación
+    confirmButtonColor: status === 'ACTIVE' ? '#28a745' : status === 'REJECTED' ? '#dc3545' : '#106f8c',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: 'Sí, aplicar cambio',
+    cancelButtonText: 'Cancelar'
+  });
+  
+  if (!result.isConfirmed) {
     return;
   }
   
@@ -320,7 +453,13 @@ async function updatePsychologistStatus(psychologistId, status, adminNotes) {
     });
 
     if (response.ok) {
-      alert(`Estado del psicólogo actualizado a ${statusText}.`);
+      // REEMPLAZO DE alert() (Éxito)
+      await Swal.fire({
+        title: '¡Estado Actualizado!',
+        text: `El estado del psicólogo ha sido cambiado a ${statusText}.`,
+        icon: 'success',
+        confirmButtonColor: '#106f8c',
+      });
       closeModal(); // Cierra el modal de detalles
       closeRejectionModal(); // Cierra el modal de rechazo, por si estuviera abierto
       await loadPsychologists(); // Recargar la lista
@@ -331,14 +470,33 @@ async function updatePsychologistStatus(psychologistId, status, adminNotes) {
     }
   } catch (error) {
     console.error('Error al actualizar el estado:', error);
-    alert('Hubo un problema al actualizar el estado: ' + error.message);
+    // REEMPLAZO DE alert() (Error)
+    await Swal.fire({
+      title: 'Fallo en la Actualización',
+      text: 'Hubo un problema al actualizar el estado: ' + error.message,
+      icon: 'error',
+      confirmButtonColor: '#106f8c',
+    });
   }
 }
 
-// Función para eliminar un psicólogo
+// Función para eliminar un psicólogo (Ya usa SweetAlert2)
 async function deletePsychologist(psychologistId) {
-    if (!confirm('¿Estás seguro de que quieres eliminar este psicólogo permanentemente? Esta acción es irreversible.')) {
-        return;
+    
+    // REEMPLAZO DE 'confirm()' por Swal.fire para la confirmación
+    const result = await Swal.fire({
+        title: '¿Estás seguro de ELIMINAR al psicólogo(a)?',
+        text: 'Estás a punto de eliminar a este(a) psicólogo(a) permanentemente. Esta acción es irreversible.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545', // Rojo para eliminar
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Sí, ¡eliminar permanentemente!',
+        cancelButtonText: 'Cancelar'
+    });
+
+    if (!result.isConfirmed) {
+        return; // Sale de la función si el usuario cancela
     }
 
     try {
@@ -351,21 +509,35 @@ async function deletePsychologist(psychologistId) {
         });
 
         if (response.ok) {
-            alert('Psicólogo eliminado correctamente.');
+            
+            // REEMPLAZO DE 'alert()' por Swal.fire para el éxito
+            await Swal.fire({
+                title: '¡Eliminación Exitosa!',
+                text: 'Psicólogo(a) eliminado(a) correctamente.',
+                icon: 'success',
+                confirmButtonColor: '#106f8c',
+            });
+            
             closeModal();
             await loadPsychologists();
             await loadStats();
+            
         } else {
             const errorData = await response.json();
             throw new Error(errorData.error || 'Error al eliminar el psicólogo.');
         }
     } catch (error) {
         console.error('Error al eliminar psicólogo:', error);
-        alert('Hubo un problema al eliminar el psicólogo: ' + error.message);
+        
+        // REEMPLAZO DE 'alert()' por Swal.fire para el error
+        await Swal.fire({
+            title: 'Fallo al Eliminar',
+            text: `Hubo un problema al eliminar el psicólogo: ${error.message}`,
+            icon: 'error',
+            confirmButtonColor: '#106f8c',
+        });
     }
 }
-
-
 // Función para aplicar filtros
 function applyFilters() {
   const searchQuery = document.getElementById('searchBar').value.toLowerCase();
@@ -423,7 +595,7 @@ window.updatePsychologistStatus = updatePsychologistStatus;
 window.closeModal = closeModal;
 window.showRejectionModalForId = showRejectionModalForId;
 window.deletePsychologist = deletePsychologist;
-
+window.updatePsychologistPrice = updatePsychologistPrice;
 
 // Función global para logout
 window.logout = async () => {
