@@ -26,11 +26,11 @@ router.get('/appointments', verifyAdminToken, async (req, res) => {
 
             // Obtener datos de Patient y Psychologist en paralelo
             const patientPromise = data.patientId
-                ? db.collection('patients').doc(data.patientId).get()
+                ? db.collection('patients').doc(data.patientId).get() // Uso seguro de .doc()
                 : Promise.resolve(null); // Resuelve con null si el ID no existe
 
             const psychologistPromise = data.psychologistId
-                ? db.collection('psychologists').doc(data.psychologistId).get()
+                ? db.collection('psychologists').doc(data.psychologistId).get() // Uso seguro de .doc()
                 : Promise.resolve(null); // Resuelve con null si el ID no existe
 
             const [patientDoc, psychologistDoc] = await Promise.all([patientPromise, psychologistPromise]);
